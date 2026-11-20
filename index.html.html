@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Chug Mulligan Championship — Season 3</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Geometric Swiss Modernist Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-paper: #F5F2EB;
+      --bg-card: #FAF8F3;
+      --ink-navy: #1A2B3C;
+      --terracotta: #C85A32;
+      --ochre: #D49B35;
+      --slate: #4A6B82;
+      --forest: #2E5A44;
+      --sage: #8DA18E;
+    }
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--ink-navy);
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-image:
+        radial-gradient(rgba(26, 43, 60, 0.045) 1px, transparent 0),
+        radial-gradient(rgba(200, 90, 50, 0.03) 1px, transparent 0);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-display {
+      font-family: 'Archivo Black', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    .font-mono-swiss {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* Swiss Modernist hard borders & offset stamps */
+    .swiss-box {
+      background-color: var(--bg-card);
+      border: 2.5px solid var(--ink-navy);
+      box-shadow: 4px 4px 0px var(--ink-navy);
+    }
+
+    .swiss-box-sm {
+      background-color: var(--bg-card);
+      border: 2px solid var(--ink-navy);
+      box-shadow: 2.5px 2.5px 0px var(--ink-navy);
+    }
+
+    .swiss-btn {
+      border: 2px solid var(--ink-navy);
+      box-shadow: 3px 3px 0px var(--ink-navy);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .swiss-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--ink-navy);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #EAE5D9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1A2B3C;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+  <div id="root"></div>
+
+  <!-- React 18 & Babel Standalone -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Firebase Modular SDK (v10.12.2) exposed cleanly to window -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAWtsmw0ew0jHE04_CCafGGnO-WoZpd3Sg",
+      authDomain: "chug-mulligan.firebaseapp.com",
+      projectId: "chug-mulligan",
+      storageBucket: "chug-mulligan.firebasestorage.app",
+      messagingSenderId: "353573864507",
+      appId: "1:353573864507:web:27a36fcb6e873dc881481e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.FirebaseDB = {
+      db,
+      collection,
+      addDoc,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      onSnapshot
+    };
+    window.dispatchEvent(new Event("firebase-ready"));
+  </script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    // =========================================================================
+    // IMAGE COMPRESSION HELPER (CLIENT-SIDE CANVAS FOR FIRESTORE SYNC)
+    // =========================================================================
+
+    function compressImageFile(file, maxDimension = 260, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        if (!file || !file.type.startsWith("image/")) {
+          reject(new Error("Please choose a valid image file."));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxDimension) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            resolve(dataUrl);
+          };
+          img.onerror = () => reject(new Error("Could not load image."));
+          img.src = event.target.result;
+        };
+        reader.onerror = () => reject(new Error("Could not read file."));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // =========================================================================
+    // SEASON 3 CONSTANTS, ROSTER, DEFAULT FIXTURES & LEGACY DATA
+    // =========================================================================
+
+    const ROSTER = [
+      { id: "Dew", name: "Dew", hcp: 0, color: "#8DA18E", textColor: "#1A2B3C", tag: "THE PURIST" },
+      { id: "Bill", name: "Bill", hcp: 6, color: "#4A6B82", textColor: "#FAF8F3", tag: "S2 CHAMPION" },
+      { id: "Thorgan", name: "Thorgan", hcp: 6, color: "#D49B35", textColor: "#1A2B3C", tag: "ROOKIE" },
+      { id: "Chinlie", name: "Chinlie", hcp: 6, color: "#2E5A44", textColor: "#FAF8F3", tag: "COMMISSIONER" },
+      { id: "Easty", name: "Easty", hcp: 9, color: "#C85A32", textColor: "#FAF8F3", tag: "S1 CHAMPION" },
+      { id: "Dunk", name: "Dunk", hcp: 18, color: "#1A2B3C", textColor: "#FAF8F3", tag: "DUNKHAUSER" }
+    ];
+
+    const DEFAULT_FIXTURES = [
+      {
+        id: "week-1",
+        order: 1,
+        week: "WEEK 1",
+        dates: "NOV 30 – DEC 6",
+        course: "WOLFCREEK",
+        par: 72,
+        location: "Mesquite, Nevada (Bravo)",
+        badgeColor: "#C85A32",
+        pictogram: "wolfcreek",
+        isFinal: false,
+        matchups: [
+          { p1: "Easty", p2: "Bill" },
+          { p1: "Dunk", p2: "Thorgan" },
+          { p1: "Chinlie", p2: "Dew" }
+        ]
+      },
+      {
+        id: "week-2",
+        order: 2,
+        week: "WEEK 2",
+        dates: "DEC 7 – DEC 13",
+        course: "MONTVERT",
+        par: 72,
+        location: "Pocheon, South Korea (Bravo)",
+        badgeColor: "#4A6B82",
+        pictogram: "montvert",
+        isFinal: false,
+        matchups: [
+          { p1: "Easty", p2: "Thorgan" },
+          { p1: "Bill", p2: "Dew" },
+          { p1: "Dunk", p2: "Chinlie" }
+        ]
+      },
+      {
+        id: "week-3",
+        order: 3,
+        week: "WEEK 3",
+        dates: "DEC 14 – DEC 20",
+        course: "BARNBOUGLE",
+        par: 71,
+        location: "Tasmania, Australia (Bravo)",
+        badgeColor: "#D49B35",
+        pictogram: "barnbougle",
+        isFinal: false,
+        matchups: [
+          { p1: "Easty", p2: "Dew" },
+          { p1: "Thorgan", p2: "Chinlie" },
+          { p1: "Bill", p2: "Dunk" }
+        ]
+      },
+      {
+        id: "week-4",
+        order: 4,
+        week: "WEEK 4",
+        dates: "JAN 4 – JAN 10",
+        course: "ROYAL ISLAND",
+        par: 72,
+        location: "Mekong Delta, Vietnam (Bravo)",
+        badgeColor: "#2E5A44",
+        pictogram: "royalisland",
+        isFinal: false,
+        matchups: [
+          { p1: "Easty", p2: "Chinlie" },
+          { p1: "Dew", p2: "Dunk" },
+          { p1: "Thorgan", p2: "Bill" }
+        ]
+      },
+      {
+        id: "week-5",
+        order: 5,
+        week: "WEEK 5",
+        dates: "JAN 11 – JAN 17",
+        course: "IMPERIAL LAKE",
+        par: 72,
+        location: "South Korea (Bravo)",
+        badgeColor: "#C85A32",
+        pictogram: "imperiallake",
+        isFinal: false,
+        matchups: [
+          { p1: "Easty", p2: "Dunk" },
+          { p1: "Chinlie", p2: "Bill" },
+          { p1: "Dew", p2: "Thorgan" }
+        ]
+      },
+      {
+        id: "final",
+        order: 99,
+        week: "FINAL",
+        dates: "SATURDAY, 23RD JANUARY",
+        course: "PINE COAST",
+        par: 72,
+        location: "Championship Finale (Bravo)",
+        badgeColor: "#1A2B3C",
+        pictogram: "pinecoast",
+        isFinal: true,
+        matchups: []
+      }
+    ];
+
+    const LEGACY_LEAGUE_RECORDS = [
+      {
+        title: "THE PURIST'S RECORD (LOWEST GROSS)",
+        value: "63 strokes",
+        holder: "Dew",
+        detail: "Seowon Hills (Korea)",
+        accent: "#2E5A44"
+      },
+      {
+        title: "LOWEST NET SCORE",
+        value: "56 net",
+        holder: "Dunkhauser",
+        detail: "Seowon Hills (Korea)",
+        accent: "#D49B35"
+      },
+      {
+        title: "WORST MELTDOWN (HIGHEST NET)",
+        value: "86 net",
+        holder: "Easty",
+        detail: "Augusta (USA)",
+        accent: "#C85A32"
+      },
+      {
+        title: "BIGGEST BLOWOUT WIN",
+        value: "11 strokes",
+        holder: "Chinlie",
+        detail: "def. Bill",
+        accent: "#4A6B82"
+      },
+      {
+        title: "MOST MATCHES PLAYED (SINGLE SEASON)",
+        value: "6 matches",
+        holder: "Dunkhauser",
+        detail: "Season 2 Regular Season",
+        accent: "#1A2B3C"
+      }
+    ];
+
+    const LEGACY_COURSE_RECORDS = [
+      { course: "SEOWON HILLS (KOREA)", lowNet: 56, lowNetHolder: "Dunkhauser", purist: 63, puristHolder: "Dew" },
+      { course: "TGCC (TAIWAN)", lowNet: 67, lowNetHolder: "Easty", purist: 65, puristHolder: "Nock" },
+      { course: "HIRAKAWA (JAPAN)", lowNet: 60, lowNetHolder: "Dunkhauser", purist: 64, puristHolder: "Dew" },
+      { course: "AUGUSTA (USA)", lowNet: 75, lowNetHolder: "Nock", purist: 70, puristHolder: "Nock" },
+      { course: "MEKONG (VIETNAM)", lowNet: 62, lowNetHolder: "Chinlie", purist: 70, puristHolder: "Chinlie" },
+      { course: "ALPINE GOLF (THAILAND)", lowNet: 63, lowNetHolder: "Dunkhauser", purist: 67, puristHolder: "Dew" },
+      { course: "ROYAL ORCHID (CHINA)", lowNet: 63, lowNetHolder: "Dunkhauser", purist: 72, puristHolder: "Dew" }
+    ];
+
+    const HALL_OF_FAME_ENTRIES = [
+      {
+        id: "season-1",
+        season: "SEASON 1 (2025)",
+        champion: "EASTY",
+        subtitle: "Inaugural Yellow Jacket Winner",
+        badgeColor: "#C85A32",
+        notes: "Claimed the first crown fueled by boxed red wine and clutch net scoring."
+      },
+      {
+        id: "season-2",
+        season: "SEASON 2 (2026)",
+        champion: "BILL",
+        subtitle: "Reigning Yellow Jacket Champion",
+        badgeColor: "#4A6B82",
+        notes: "Survived the regular season gauntlet to capture the Season 2 Championship Final."
+      }
+    ];
+
+    // =========================================================================
+    // CUSTOM 1960s/70s OLYMPIC GEOMETRIC SVG PICTOGRAMS
+    // =========================================================================
+
+    function OlympicHeaderCrest() {
+      // Fine-grid golf ball dimple coordinates around (0,0) for radius 10.5
+      const dimples = [
+        [0, -7], [-4, -5.5], [4, -5.5],
+        [-7, -2], [-2.5, -2], [2.5, -2], [7, -2],
+        [-7.5, 2], [-2.5, 2], [2.5, 2], [7.5, 2],
+        [-4.5, 5.5], [0, 5.5], [4.5, 5.5],
+        [0, 8.2]
+      ];
+
+      return (
+        <svg viewBox="0 0 360 112" className="w-full max-w-md mx-auto h-auto select-none" aria-label="Chug Mulligan 1972 Olympic Motif">
+          {/* Left concentric Olympic geometric tracks + golf bags + sneaky red wine box */}
+          <g stroke="#1A2B3C" strokeWidth="2.2" fill="none">
+            {/* Retro striped pine silhouette */}
+            <polygon points="16,96 28,22 40,96" fill="#2E5A44" />
+            <line x1="21" y1="74" x2="35" y2="74" stroke="#F5F2EB" strokeWidth="2.5" />
+            <line x1="23" y1="58" x2="33" y2="58" stroke="#F5F2EB" strokeWidth="2.5" />
+
+            {/* Concentric 1972 Munich-style ribbon arcs */}
+            <path d="M 46 96 L 46 34 L 74 96" stroke="#C85A32" strokeWidth="4" />
+            <path d="M 54 96 L 54 48 L 82 96" stroke="#D49B35" strokeWidth="4" />
+            <path d="M 62 96 L 62 62 L 90 96" stroke="#2E5A44" strokeWidth="4" />
+
+            {/* Sneaky Box of Red Wine tucked next to the golf bags */}
+            <g transform="translate(8, 72)">
+              <rect x="0" y="0" width="16" height="24" rx="1.5" fill="#8B1E24" stroke="#1A2B3C" strokeWidth="2" />
+              <rect x="2.5" y="4" width="11" height="7" fill="#F5F2EB" stroke="none" />
+              <circle cx="8" cy="7.5" r="2" fill="#8B1E24" stroke="none" />
+              <rect x="13" y="16" width="4" height="3.5" fill="#D49B35" stroke="#1A2B3C" strokeWidth="1.2" />
+            </g>
+
+            {/* Two minimalist golf bags */}
+            <rect x="29" y="64" width="13" height="32" rx="2" fill="#4A6B82" />
+            <line x1="32" y1="64" x2="30" y2="55" strokeWidth="2" />
+            <line x1="36" y1="64" x2="36" y2="53" strokeWidth="2" />
+            <line x1="39" y1="64" x2="41" y2="56" strokeWidth="2" />
+
+            <rect x="46" y="61" width="14" height="35" rx="2" fill="#D49B35" />
+            <line x1="49" y1="61" x2="47" y2="51" strokeWidth="2" />
+            <line x1="53" y1="61" x2="53" y2="49" strokeWidth="2" />
+            <line x1="57" y1="61" x2="59" y2="52" strokeWidth="2" />
+
+            {/* Left concentric golf ball target with realistic fine golf-ball dimples */}
+            <circle cx="96" cy="74" r="21" stroke="#2E5A44" strokeWidth="3.5" />
+            <circle cx="96" cy="74" r="15.5" stroke="#C85A32" strokeWidth="3.5" />
+            <g transform="translate(96, 74)">
+              <circle cx="0" cy="0" r="10.5" fill="#FAF8F3" stroke="#1A2B3C" strokeWidth="1.8" />
+              {/* Subtle shadow crescent on lower right of golf ball */}
+              <path d="M 4 -9 A 10.5 10.5 0 0 1 -5 9 A 9 9 0 0 0 4 -9 Z" fill="#1A2B3C" opacity="0.14" stroke="none" />
+              {dimples.map(([dx, dy], idx) => (
+                <circle key={idx} cx={dx} cy={dy} r="0.72" fill="#1A2B3C" opacity="0.55" stroke="none" />
+              ))}
+            </g>
+          </g>
+
+          {/* Center Crossed Irons & Pint Glass */}
+          <g transform="translate(180, 56)" stroke="#1A2B3C" strokeWidth="2.4" fill="none">
+            <line x1="-26" y1="-26" x2="24" y2="30" strokeWidth="3" strokeLinecap="round" />
+            <path d="M 22 28 L 32 25 C 34 29 31 34 25 33 Z" fill="#2E5A44" />
+
+            <line x1="26" y1="-26" x2="-24" y2="30" strokeWidth="3" strokeLinecap="round" />
+            <path d="M -22 28 L -32 25 C -34 29 -31 34 -25 33 Z" fill="#2E5A44" />
+
+            <polygon points="-11,-22 11,-22 8,24 -8,24" fill="#FAF8F3" strokeWidth="2.4" />
+            <polygon points="-9.5,-13 9.5,-13 7.5,22 -7.5,22" fill="#D49B35" stroke="none" />
+            <rect x="-10.5" y="-21.5" width="21" height="8.5" fill="#FAF8F3" stroke="none" />
+            <line x1="-10.5" y1="-13" x2="10.5" y2="-13" stroke="#1A2B3C" strokeWidth="1.8" />
+          </g>
+
+          {/* Right concentric Olympic tracks & flagstick */}
+          <g stroke="#1A2B3C" strokeWidth="2.2" fill="none">
+            <circle cx="256" cy="74" r="21" stroke="#D49B35" strokeWidth="3.5" />
+            <circle cx="256" cy="74" r="15.5" stroke="#2E5A44" strokeWidth="3.5" />
+            {/* Right Golf Ball with fine dimples */}
+            <g transform="translate(256, 74)">
+              <circle cx="0" cy="0" r="10.5" fill="#FAF8F3" stroke="#1A2B3C" strokeWidth="1.8" />
+              <path d="M 4 -9 A 10.5 10.5 0 0 1 -5 9 A 9 9 0 0 0 4 -9 Z" fill="#1A2B3C" opacity="0.14" stroke="none" />
+              {dimples.map(([dx, dy], idx) => (
+                <circle key={idx} cx={dx} cy={dy} r="0.72" fill="#1A2B3C" opacity="0.55" stroke="none" />
+              ))}
+            </g>
+
+            {/* Diagonal speed lines */}
+            <line x1="268" y1="56" x2="294" y2="22" stroke="#C85A32" strokeWidth="4" />
+            <line x1="275" y1="62" x2="301" y2="28" stroke="#2E5A44" strokeWidth="4" />
+            <line x1="282" y1="68" x2="308" y2="34" stroke="#D49B35" strokeWidth="4" />
+
+            {/* Flagstick & flags */}
+            <ellipse cx="296" cy="94" rx="8" ry="3" fill="#1A2B3C" />
+            <line x1="296" y1="94" x2="308" y2="20" stroke="#1A2B3C" strokeWidth="2.8" />
+            <polygon points="308,21 334,27 308,35" fill="#C85A32" />
+            <polygon points="305,40 326,45 304,51" fill="#D49B35" />
+
+            {/* Horizontal ground tracks */}
+            <line x1="282" y1="84" x2="348" y2="84" stroke="#2E5A44" strokeWidth="3.5" />
+            <line x1="282" y1="90" x2="348" y2="90" stroke="#D49B35" strokeWidth="3.5" />
+            <line x1="282" y1="96" x2="348" y2="96" stroke="#C85A32" strokeWidth="3.5" />
+          </g>
+        </svg>
+      );
+    }
+
+    function CoursePictogram({ type }) {
+      switch (type) {
+        case "wolfcreek":
+          return (
+            <svg viewBox="0 0 110 44" className="w-24 h-10 shrink-0">
+              <path d="M4,42 L18,42 L22,26 L36,26 L40,34 L54,34 L58,14 L74,14 L77,26 L86,26 L90,10 L102,10 L105,42 Z" fill="#C85A32" stroke="#1A2B3C" strokeWidth="2" />
+              <path d="M58,14 L66,14 L68,42 L54,42 Z" fill="#1A2B3C" opacity="0.25" />
+              <line x1="66" y1="14" x2="66" y2="4" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="66,4 75,7 66,10" fill="#D49B35" stroke="#1A2B3C" strokeWidth="1.2" />
+            </svg>
+          );
+        case "montvert":
+          return (
+            <svg viewBox="0 0 110 44" className="w-24 h-10 shrink-0">
+              <polygon points="10,42 34,16 56,42" fill="#4A6B82" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="48,42 78,14 104,42" fill="#2E5A44" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="28,42 56,10 84,42" fill="#8DA18E" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="56,10 66,42 84,42" fill="#1A2B3C" opacity="0.3" />
+              <line x1="56" y1="10" x2="56" y2="2" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="56,2 65,5 56,8" fill="#C85A32" stroke="#1A2B3C" strokeWidth="1.2" />
+            </svg>
+          );
+        case "barnbougle":
+          return (
+            <svg viewBox="0 0 110 44" className="w-24 h-10 shrink-0">
+              <path d="M2,42 Q26,22 52,32 T92,28 L106,42 Z" fill="#D49B35" stroke="#1A2B3C" strokeWidth="2" />
+              <path d="M58,36 C68,20 82,12 96,14 C104,15 106,22 100,26 C94,28 92,22 95,20 C86,20 78,28 74,42 L56,42 Z" fill="#4A6B82" stroke="#1A2B3C" strokeWidth="2" />
+            </svg>
+          );
+        case "royalisland":
+          return (
+            <svg viewBox="0 0 110 44" className="w-24 h-10 shrink-0">
+              <rect x="2" y="34" width="106" height="8" fill="#4A6B82" stroke="#1A2B3C" strokeWidth="1.8" />
+              <path d="M36,38 Q68,24 102,38 Z" fill="#2E5A44" stroke="#1A2B3C" strokeWidth="2" />
+              <path d="M78,32 Q81,20 76,12" stroke="#1A2B3C" strokeWidth="2.5" fill="none" />
+              <path d="M76,12 Q64,8 58,15" stroke="#2E5A44" strokeWidth="2.5" fill="none" />
+              <path d="M76,12 Q68,4 62,6" stroke="#2E5A44" strokeWidth="2.5" fill="none" />
+              <path d="M76,12 Q86,6 94,13" stroke="#2E5A44" strokeWidth="2.5" fill="none" />
+              <path d="M76,12 Q88,12 92,20" stroke="#2E5A44" strokeWidth="2.5" fill="none" />
+              <line x1="56" y1="33" x2="56" y2="21" stroke="#1A2B3C" strokeWidth="1.8" />
+              <polygon points="56,21 63,23.5 56,26" fill="#C85A32" />
+            </svg>
+          );
+        case "imperiallake":
+          return (
+            <svg viewBox="0 0 110 44" className="w-24 h-10 shrink-0">
+              <path d="M4,34 Q42,28 74,34 L106,34 L106,42 L4,42 Z" fill="#8DA18E" stroke="#1A2B3C" strokeWidth="1.8" />
+              <line x1="10" y1="37" x2="64" y2="37" stroke="#FAF8F3" strokeWidth="1.6" strokeDasharray="8 4" />
+              <line x1="18" y1="40" x2="72" y2="40" stroke="#FAF8F3" strokeWidth="1.6" strokeDasharray="6 5" />
+              <polygon points="82,34 89,14 96,34" fill="#2E5A44" stroke="#1A2B3C" strokeWidth="1.8" />
+              <polygon points="94,34 100,18 106,34" fill="#2E5A44" stroke="#1A2B3C" strokeWidth="1.8" />
+              <line x1="66" y1="33" x2="66" y2="22" stroke="#1A2B3C" strokeWidth="1.8" />
+              <polygon points="66,22 73,24.5 66,27" fill="#C85A32" />
+            </svg>
+          );
+        case "pinecoast":
+        default:
+          return (
+            <svg viewBox="0 0 320 46" className="w-full max-w-sm mx-auto h-11">
+              <path d="M 140 34 A 20 20 0 0 1 180 34 Z" fill="#D49B35" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="14,34 22,10 30,34" fill="#2E5A44" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="28,34 35,14 42,34" fill="#4A6B82" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="4,34 86,34 96,44 4,44" fill="#1A2B3C" />
+              <polygon points="56,34 86,34 90,44 62,44" fill="#D49B35" />
+              <path d="M 96 36 Q 112 31 128 36 T 160 36 T 192 36 T 224 36" stroke="#4A6B82" strokeWidth="3" fill="none" />
+              <path d="M 102 42 Q 118 37 134 42 T 166 42 T 198 42 T 230 42" stroke="#2E5A44" strokeWidth="3" fill="none" />
+              <path d="M 226 44 Q 260 30 316 40 L 316 44 Z" fill="#D49B35" stroke="#1A2B3C" strokeWidth="2" />
+              <line x1="274" y1="35" x2="274" y2="18" stroke="#1A2B3C" strokeWidth="2" />
+              <polygon points="274,18 285,21.5 274,25" fill="#C85A32" stroke="#1A2B3C" strokeWidth="1.2" />
+              <polygon points="292,37 300,12 308,37" fill="#2E5A44" stroke="#1A2B3C" strokeWidth="2" />
+            </svg>
+          );
+      }
+    }
+
+    // =========================================================================
+    // DRAG-AND-DROP PHOTO AVATAR COMPONENT
+    // =========================================================================
+
+    function PhotoDropAvatar({ photoUrl, fallbackText, bgColor, textColor, sizeClass = "w-12 h-12", onUpload, hint = "Drop photo" }) {
+      const [dragging, setDragging] = useState(false);
+      const inputRef = useRef(null);
+
+      const handleFiles = async (files) => {
+        if (!files || !files[0]) return;
+        try {
+          await onUpload(files[0]);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      const onDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragging(false);
+        handleFiles(e.dataTransfer.files);
+      };
+
+      return (
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDragging(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDragging(false);
+          }}
+          onDrop={onDrop}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (inputRef.current) inputRef.current.click();
+          }}
+          title={`${hint} (Drag & drop or tap)`}
+          className={`relative ${sizeClass} rounded-full border-2 border-[#1A2B3C] overflow-hidden flex items-center justify-center cursor-pointer select-none group transition-transform ${
+            dragging ? "scale-110 ring-4 ring-[#D49B35]" : "hover:scale-105"
+          }`}
+          style={{ backgroundColor: bgColor, color: textColor }}
+        >
+          {photoUrl ? (
+            <img src={photoUrl} alt={fallbackText} className="w-full h-full object-cover" />
+          ) : (
+            <span className="font-display text-sm sm:text-base">{fallbackText}</span>
+          )}
+
+          {/* Subtle camera hover/drop overlay */}
+          <div
+            className={`absolute inset-0 bg-[#1A2B3C]/75 text-[#FAF8F3] flex items-center justify-center text-[9px] font-mono-swiss font-bold uppercase text-center px-1 transition-opacity ${
+              dragging ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            {dragging ? "DROP!" : "PHOTO"}
+          </div>
+
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              handleFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // HEAD-TO-HEAD SCORING ENGINE (NO SOLO ROUNDS)
+    // =========================================================================
+
+    function calculateMatchOutcome({
+      playerA,
+      hcpA,
+      grossA,
+      playerB,
+      hcpB,
+      grossB,
+      par,
+      tiebreaker
+    }) {
+      const gA = Number(grossA);
+      const hA = Number(hcpA);
+      const gB = Number(grossB);
+      const hB = Number(hcpB);
+      const coursePar = Number(par) || 72;
+
+      const netA = gA - hA;
+      const netB = gB - hB;
+      const beatHcpA = netA < coursePar; // Strictly under net par
+      const beatHcpB = netB < coursePar; // Strictly under net par
+
+      let ptsA = beatHcpA ? 1 : 0;
+      let ptsB = beatHcpB ? 1 : 0;
+      let resultA = "T";
+      let resultB = "T";
+      let winner = null;
+      let margin = Math.abs(netA - netB);
+
+      if (netA < netB) {
+        ptsA += 2;
+        resultA = "W";
+        resultB = "L";
+        winner = playerA;
+      } else if (netB < netA) {
+        ptsB += 2;
+        resultB = "W";
+        resultA = "L";
+        winner = playerB;
+      } else {
+        // Tied Net Scores
+        if (tiebreaker === "A") {
+          ptsA += 2;
+          resultA = "W";
+          resultB = "L";
+          winner = playerA;
+        } else if (tiebreaker === "B") {
+          ptsB += 2;
+          resultB = "W";
+          resultA = "L";
+          winner = playerB;
+        } else {
+          ptsA += 1;
+          ptsB += 1;
+          resultA = "T";
+          resultB = "T";
+          winner = "TIE";
+        }
+      }
+
+      return {
+        netA,
+        beatHcpA,
+        ptsA,
+        resultA,
+        netB,
+        beatHcpB,
+        ptsB,
+        resultB,
+        winner,
+        margin
+      };
+    }
+
+    // =========================================================================
+    // MAIN APPLICATION COMPONENT
+    // =========================================================================
+
+    function App() {
+      const [activeTab, setActiveTab] = useState("standings");
+      const [matches, setMatches] = useState([]);
+      const [playerPhotos, setPlayerPhotos] = useState({});
+      const [hofPhotos, setHofPhotos] = useState({});
+      const [fixtures, setFixtures] = useState(DEFAULT_FIXTURES);
+      const [posterImage, setPosterImage] = useState(null);
+      const [posterDragging, setPosterDragging] = useState(false);
+      const [posterZoomed, setPosterZoomed] = useState(false);
+      const posterInputRef = useRef(null);
+
+      const [dbStatus, setDbStatus] = useState("connecting"); // connecting | live | local
+      const [toast, setToast] = useState(null);
+
+      // Fixture Editor Modal State
+      const [editingFixture, setEditingFixture] = useState(null);
+
+      // Scorecard Form State (Strictly Head-to-Head)
+      const [editingId, setEditingId] = useState(null);
+      const [selectedWeek, setSelectedWeek] = useState("WEEK 1");
+      const [courseName, setCourseName] = useState("WOLFCREEK");
+      const [coursePar, setCoursePar] = useState(72);
+      const [playerA, setPlayerA] = useState("Easty");
+      const [hcpA, setHcpA] = useState(9);
+      const [grossA, setGrossA] = useState("");
+      const [playerB, setPlayerB] = useState("Bill");
+      const [hcpB, setHcpB] = useState(6);
+      const [grossB, setGrossB] = useState("");
+      const [tiebreaker, setTiebreaker] = useState("NONE");
+      const [submitting, setSubmitting] = useState(false);
+      const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+      const showToast = (msg, type = "success") => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3500);
+      };
+
+      // Subscribe to Firebase Firestore collections
+      useEffect(() => {
+        const unsubs = [];
+
+        const connectFirestore = () => {
+          if (!window.FirebaseDB) return;
+          const { db, collection, doc, onSnapshot } = window.FirebaseDB;
+
+          try {
+            // 1. Matches Listener
+            const unsubMatches = onSnapshot(
+              collection(db, "season3_matches"),
+              (snapshot) => {
+                const loaded = snapshot.docs.map((d) => ({
+                  id: d.id,
+                  ...d.data()
+                }));
+                loaded.sort((a, b) => (a.createdAtMs || 0) - (b.createdAtMs || 0));
+                setMatches(loaded);
+                setDbStatus("live");
+              },
+              (err) => {
+                console.warn("Firestore matches error:", err);
+                setMatches(JSON.parse(localStorage.getItem("cm_s3_matches") || "[]"));
+                setDbStatus("local");
+              }
+            );
+            unsubs.push(unsubMatches);
+
+            // 2. Player Profile Photos Listener
+            const unsubPlayers = onSnapshot(
+              collection(db, "season3_players"),
+              (snapshot) => {
+                const map = {};
+                snapshot.docs.forEach((d) => {
+                  if (d.data().photoUrl) map[d.id] = d.data().photoUrl;
+                });
+                setPlayerPhotos(map);
+              },
+              () => {
+                setPlayerPhotos(JSON.parse(localStorage.getItem("cm_s3_player_photos") || "{}"));
+              }
+            );
+            unsubs.push(unsubPlayers);
+
+            // 3. Hall of Fame Photos Listener
+            const unsubHof = onSnapshot(
+              collection(db, "season3_hof"),
+              (snapshot) => {
+                const map = {};
+                snapshot.docs.forEach((d) => {
+                  if (d.data().photoUrl) map[d.id] = d.data().photoUrl;
+                });
+                setHofPhotos(map);
+              },
+              () => {
+                setHofPhotos(JSON.parse(localStorage.getItem("cm_s3_hof_photos") || "{}"));
+              }
+            );
+            unsubs.push(unsubHof);
+
+            // 4. Custom Fixtures Listener (merges with DEFAULT_FIXTURES if empty)
+            const unsubFixtures = onSnapshot(
+              collection(db, "season3_fixtures"),
+              (snapshot) => {
+                if (!snapshot.empty) {
+                  const loadedFix = snapshot.docs.map((d) => ({
+                    id: d.id,
+                    ...d.data()
+                  }));
+                  loadedFix.sort((a, b) => (a.order || 50) - (b.order || 50));
+                  setFixtures(loadedFix);
+                }
+              },
+              () => {
+                const cached = localStorage.getItem("cm_s3_fixtures");
+                if (cached) setFixtures(JSON.parse(cached));
+              }
+            );
+            unsubs.push(unsubFixtures);
+
+            // 5. Season 3 Official Poster Image Listener
+            const unsubPoster = onSnapshot(
+              doc(db, "season3_settings", "poster"),
+              (snap) => {
+                if (snap.exists() && snap.data().imageUrl) {
+                  setPosterImage(snap.data().imageUrl);
+                } else {
+                  setPosterImage(null);
+                }
+              },
+              () => {
+                const cachedPoster = localStorage.getItem("cm_s3_poster");
+                if (cachedPoster) setPosterImage(cachedPoster);
+              }
+            );
+            unsubs.push(unsubPoster);
+          } catch (e) {
+            console.warn("Firestore setup failed:", e);
+            setDbStatus("local");
+          }
+        };
+
+        if (window.FirebaseDB) {
+          connectFirestore();
+        } else {
+          window.addEventListener("firebase-ready", connectFirestore);
+        }
+
+        return () => {
+          window.removeEventListener("firebase-ready", connectFirestore);
+          unsubs.forEach((fn) => fn && fn());
+        };
+      }, []);
+
+      // Upload Player Profile Photo (Compressed & Saved to Firestore)
+      const handleUploadPlayerPhoto = async (playerId, file) => {
+        try {
+          const dataUrl = await compressImageFile(file, 240, 0.8);
+          const updated = { ...playerPhotos, [playerId]: dataUrl };
+          setPlayerPhotos(updated);
+          localStorage.setItem("cm_s3_player_photos", JSON.stringify(updated));
+
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, doc, setDoc } = window.FirebaseDB;
+            await setDoc(
+              doc(db, "season3_players", playerId),
+              { photoUrl: dataUrl, updatedAtMs: Date.now() },
+              { merge: true }
+            );
+          }
+          showToast(`${playerId}'s profile photo updated!`);
+        } catch (err) {
+          showToast(err.message || "Could not upload photo.", "error");
+        }
+      };
+
+      // Upload Hall of Fame Jacket Photo
+      const handleUploadHofPhoto = async (hofId, file) => {
+        try {
+          const dataUrl = await compressImageFile(file, 280, 0.82);
+          const updated = { ...hofPhotos, [hofId]: dataUrl };
+          setHofPhotos(updated);
+          localStorage.setItem("cm_s3_hof_photos", JSON.stringify(updated));
+
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, doc, setDoc } = window.FirebaseDB;
+            await setDoc(
+              doc(db, "season3_hof", hofId),
+              { photoUrl: dataUrl, updatedAtMs: Date.now() },
+              { merge: true }
+            );
+          }
+          showToast("Hall of Fame champion photo saved!");
+        } catch (err) {
+          showToast(err.message || "Could not upload photo.", "error");
+        }
+      };
+
+      // Upload Season 3 Fixture Poster Image
+      const handleUploadPoster = async (file) => {
+        try {
+          const dataUrl = await compressImageFile(file, 1080, 0.82);
+          setPosterImage(dataUrl);
+          localStorage.setItem("cm_s3_poster", dataUrl);
+
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, doc, setDoc } = window.FirebaseDB;
+            await setDoc(
+              doc(db, "season3_settings", "poster"),
+              { imageUrl: dataUrl, updatedAtMs: Date.now() },
+              { merge: true }
+            );
+          }
+          showToast("Season 3 fixture poster uploaded!");
+        } catch (err) {
+          showToast(err.message || "Could not upload poster.", "error");
+        }
+      };
+
+      const handleClearPoster = async () => {
+        setPosterImage(null);
+        localStorage.removeItem("cm_s3_poster");
+        if (dbStatus === "live" && window.FirebaseDB) {
+          const { db, doc, deleteDoc } = window.FirebaseDB;
+          await deleteDoc(doc(db, "season3_settings", "poster"));
+        }
+        showToast("Poster removed.");
+      };
+
+      // Save Edited or Newly Added Fixture to Firestore
+      const handleSaveFixture = async (e) => {
+        e.preventDefault();
+        if (!editingFixture) return;
+
+        const cleanFixture = {
+          ...editingFixture,
+          week: editingFixture.week.trim().toUpperCase(),
+          course: editingFixture.course.trim().toUpperCase(),
+          dates: editingFixture.dates.trim().toUpperCase(),
+          par: Number(editingFixture.par) || 72,
+          matchups: editingFixture.isFinal
+            ? []
+            : (editingFixture.matchups || []).filter((m) => m.p1 && m.p2)
+        };
+
+        try {
+          // Ensure all default fixtures exist in Firestore if this is the first edit
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, doc, setDoc } = window.FirebaseDB;
+            const existsInList = fixtures.some((f) => f.id === cleanFixture.id);
+            const nextList = existsInList
+              ? fixtures.map((f) => (f.id === cleanFixture.id ? cleanFixture : f))
+              : [...fixtures, cleanFixture];
+
+            for (const item of nextList) {
+              await setDoc(doc(db, "season3_fixtures", item.id), item, { merge: true });
+            }
+          } else {
+            const existsInList = fixtures.some((f) => f.id === cleanFixture.id);
+            const nextList = existsInList
+              ? fixtures.map((f) => (f.id === cleanFixture.id ? cleanFixture : f))
+              : [...fixtures, cleanFixture];
+            nextList.sort((a, b) => (a.order || 50) - (b.order || 50));
+            setFixtures(nextList);
+            localStorage.setItem("cm_s3_fixtures", JSON.stringify(nextList));
+          }
+
+          setEditingFixture(null);
+          showToast("Fixture schedule updated!");
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to save fixture.", "error");
+        }
+      };
+
+      const handleDeleteFixture = async (fixtureId) => {
+        try {
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, doc, setDoc, deleteDoc } = window.FirebaseDB;
+            // Persist remaining fixtures first so defaults don't snap back
+            const remaining = fixtures.filter((f) => f.id !== fixtureId);
+            for (const item of remaining) {
+              await setDoc(doc(db, "season3_fixtures", item.id), item, { merge: true });
+            }
+            await deleteDoc(doc(db, "season3_fixtures", fixtureId));
+          } else {
+            const remaining = fixtures.filter((f) => f.id !== fixtureId);
+            setFixtures(remaining);
+            localStorage.setItem("cm_s3_fixtures", JSON.stringify(remaining));
+          }
+          setEditingFixture(null);
+          showToast("Fixture removed.");
+        } catch (err) {
+          showToast("Could not delete fixture.", "error");
+        }
+      };
+
+      // Compute Live Standings Table from Season 3 H2H Matches
+      const standings = useMemo(() => {
+        const statsMap = {};
+        ROSTER.forEach((p) => {
+          statsMap[p.id] = {
+            ...p,
+            played: 0,
+            wins: 0,
+            losses: 0,
+            ties: 0,
+            pts: 0,
+            netDiffSum: 0,
+            form: []
+          };
+        });
+
+        matches.forEach((m) => {
+          if (!m.playerB) return; // Strictly H2H
+          const outcome = calculateMatchOutcome(m);
+
+          const sA = statsMap[m.playerA];
+          if (sA) {
+            sA.played += 1;
+            sA.pts += outcome.ptsA;
+            sA.netDiffSum += outcome.netA - (Number(m.par) || 72);
+            if (outcome.resultA === "W") sA.wins += 1;
+            else if (outcome.resultA === "L") sA.losses += 1;
+            else sA.ties += 1;
+            sA.form.push(outcome.resultA);
+          }
+
+          const sB = statsMap[m.playerB];
+          if (sB) {
+            sB.played += 1;
+            sB.pts += outcome.ptsB;
+            sB.netDiffSum += outcome.netB - (Number(m.par) || 72);
+            if (outcome.resultB === "W") sB.wins += 1;
+            else if (outcome.resultB === "L") sB.losses += 1;
+            else sB.ties += 1;
+            sB.form.push(outcome.resultB);
+          }
+        });
+
+        return Object.values(statsMap).sort((a, b) => {
+          if (b.pts !== a.pts) return b.pts - a.pts;
+          if (b.wins !== a.wins) return b.wins - a.wins;
+          if (a.played !== b.played && (a.played === 0 || b.played === 0)) return b.played - a.played;
+          return a.netDiffSum - b.netDiffSum;
+        });
+      }, [matches]);
+
+      // Compute All-Time Records (Merging Legacy Seasons 1-2 with Season 3)
+      const dynamicRecords = useMemo(() => {
+        const records = LEGACY_LEAGUE_RECORDS.map((r) => ({ ...r }));
+
+        matches.forEach((m) => {
+          if (!m.playerB) return;
+          const out = calculateMatchOutcome(m);
+          const gA = Number(m.grossA);
+          const gB = Number(m.grossB);
+
+          // Lowest Gross
+          if (gA < parseInt(records[0].value, 10)) {
+            records[0] = { ...records[0], value: `${gA} strokes`, holder: m.playerA, detail: `${m.courseName} (S3)` };
+          }
+          if (gB < parseInt(records[0].value, 10)) {
+            records[0] = { ...records[0], value: `${gB} strokes`, holder: m.playerB, detail: `${m.courseName} (S3)` };
+          }
+
+          // Lowest Net
+          if (out.netA < parseInt(records[1].value, 10)) {
+            records[1] = { ...records[1], value: `${out.netA} net`, holder: m.playerA, detail: `${m.courseName} (S3)` };
+          }
+          if (out.netB < parseInt(records[1].value, 10)) {
+            records[1] = { ...records[1], value: `${out.netB} net`, holder: m.playerB, detail: `${m.courseName} (S3)` };
+          }
+
+          // Worst Meltdown
+          if (out.netA > parseInt(records[2].value, 10)) {
+            records[2] = { ...records[2], value: `${out.netA} net`, holder: m.playerA, detail: `${m.courseName} (S3)` };
+          }
+          if (out.netB > parseInt(records[2].value, 10)) {
+            records[2] = { ...records[2], value: `${out.netB} net`, holder: m.playerB, detail: `${m.courseName} (S3)` };
+          }
+
+          // Biggest Blowout
+          if (out.margin > parseInt(records[3].value, 10)) {
+            const winName = out.netA < out.netB ? m.playerA : m.playerB;
+            const loseName = out.netA < out.netB ? m.playerB : m.playerA;
+            records[3] = { ...records[3], value: `${out.margin} strokes`, holder: winName, detail: `def. ${loseName} (S3)` };
+          }
+        });
+
+        // Most Matches Played
+        standings.forEach((s) => {
+          if (s.played > parseInt(records[4].value, 10)) {
+            records[4] = { ...records[4], value: `${s.played} matches`, holder: s.name, detail: "Season 3" };
+          }
+        });
+
+        return records;
+      }, [matches, standings]);
+
+      // Pre-fill scorecard when user clicks a fixture pairing
+      const handleSelectFixture = (weekObj, p1, p2) => {
+        setEditingId(null);
+        setSelectedWeek(weekObj.week);
+        setCourseName(weekObj.course);
+        setCoursePar(weekObj.par);
+        const r1 = ROSTER.find((r) => r.id === p1);
+        const r2 = ROSTER.find((r) => r.id === p2);
+        setPlayerA(p1);
+        setHcpA(r1 ? r1.hcp : 0);
+        setGrossA("");
+        setPlayerB(p2 || "Bill");
+        setHcpB(r2 ? r2.hcp : 6);
+        setGrossB("");
+        setTiebreaker("NONE");
+        setActiveTab("scorecard");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      const handleWeekSelectChange = (wk) => {
+        setSelectedWeek(wk);
+        const found = fixtures.find((s) => s.week === wk);
+        if (found) {
+          setCourseName(found.course);
+          setCoursePar(found.par);
+        }
+      };
+
+      const handlePlayerAChange = (val) => {
+        setPlayerA(val);
+        const found = ROSTER.find((r) => r.id === val);
+        if (found) setHcpA(found.hcp);
+        if (val === playerB) {
+          const alt = ROSTER.find((r) => r.id !== val);
+          if (alt) {
+            setPlayerB(alt.id);
+            setHcpB(alt.hcp);
+          }
+        }
+      };
+
+      const handlePlayerBChange = (val) => {
+        setPlayerB(val);
+        const found = ROSTER.find((r) => r.id === val);
+        if (found) setHcpB(found.hcp);
+      };
+
+      const handleEditMatch = (match) => {
+        setEditingId(match.id);
+        setSelectedWeek(match.week || "WEEK 1");
+        setCourseName(match.courseName);
+        setCoursePar(match.par || 72);
+        setPlayerA(match.playerA);
+        setHcpA(match.hcpA);
+        setGrossA(String(match.grossA));
+        setPlayerB(match.playerB || "Bill");
+        setHcpB(match.hcpB ?? 6);
+        setGrossB(match.grossB !== undefined && match.grossB !== null ? String(match.grossB) : "");
+        setTiebreaker(match.tiebreaker || "NONE");
+        setActiveTab("scorecard");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      const handleDeleteMatch = async (matchId) => {
+        try {
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, doc, deleteDoc } = window.FirebaseDB;
+            await deleteDoc(doc(db, "season3_matches", matchId));
+          } else {
+            const updated = matches.filter((m) => m.id !== matchId);
+            setMatches(updated);
+            localStorage.setItem("cm_s3_matches", JSON.stringify(updated));
+          }
+          setConfirmDeleteId(null);
+          showToast("Match deleted and standings updated.");
+        } catch (err) {
+          console.error("Delete failed:", err);
+          showToast("Could not delete match.", "error");
+        }
+      };
+
+      const handleSubmitMatch = async (e) => {
+        e.preventDefault();
+        if (!playerA || !playerB || !grossA || !grossB) {
+          showToast("Please select both golfers and enter both Gross scores.", "error");
+          return;
+        }
+        if (playerB === playerA) {
+          showToast("Player A and Player B cannot be the same golfer!", "error");
+          return;
+        }
+
+        setSubmitting(true);
+        const payload = {
+          week: selectedWeek,
+          courseName: courseName.trim().toUpperCase(),
+          par: Number(coursePar) || 72,
+          playerA,
+          hcpA: Number(hcpA),
+          grossA: Number(grossA),
+          playerB,
+          hcpB: Number(hcpB),
+          grossB: Number(grossB),
+          tiebreaker,
+          updatedAtMs: Date.now()
+        };
+
+        try {
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, collection, addDoc, updateDoc, doc } = window.FirebaseDB;
+            if (editingId) {
+              await updateDoc(doc(db, "season3_matches", editingId), payload);
+              showToast("Match updated in live database!");
+            } else {
+              await addDoc(collection(db, "season3_matches"), {
+                ...payload,
+                createdAtMs: Date.now()
+              });
+              showToast("Scorecard logged to Firebase!");
+            }
+          } else {
+            if (editingId) {
+              const updated = matches.map((m) => (m.id === editingId ? { ...m, ...payload } : m));
+              setMatches(updated);
+              localStorage.setItem("cm_s3_matches", JSON.stringify(updated));
+              showToast("Match updated locally!");
+            } else {
+              const newDoc = {
+                id: "local_" + Date.now(),
+                ...payload,
+                createdAtMs: Date.now()
+              };
+              const updated = [...matches, newDoc];
+              setMatches(updated);
+              localStorage.setItem("cm_s3_matches", JSON.stringify(updated));
+              showToast("Scorecard saved locally!");
+            }
+          }
+
+          setEditingId(null);
+          setGrossA("");
+          setGrossB("");
+          setTiebreaker("NONE");
+          setActiveTab("standings");
+        } catch (err) {
+          console.error("Save error:", err);
+          showToast("Error saving scorecard.", "error");
+        } finally {
+          setSubmitting(false);
+        }
+      };
+
+      const livePreview = useMemo(() => {
+        if (!grossA || !grossB || !playerA || !playerB) return null;
+        return calculateMatchOutcome({
+          playerA,
+          hcpA,
+          grossA,
+          playerB,
+          hcpB,
+          grossB,
+          par: coursePar,
+          tiebreaker
+        });
+      }, [playerA, hcpA, grossA, playerB, hcpB, grossB, coursePar, tiebreaker]);
+
+      const isFixturePlayed = (weekLabel, p1, p2) => {
+        return matches.find(
+          (m) =>
+            m.week === weekLabel &&
+            ((m.playerA === p1 && m.playerB === p2) || (m.playerA === p2 && m.playerB === p1))
+        );
+      };
+
+      return (
+        <div className="max-w-3xl mx-auto px-3 sm:px-6 pt-5">
+          {/* Toast Notification */}
+          {toast && (
+            <div
+              className={`fixed bottom-5 right-5 z-50 px-4 py-3 border-2 border-[#1A2B3C] shadow-[4px_4px_0px_#1A2B3C] font-bold text-sm flex items-center gap-2 ${
+                toast.type === "error" ? "bg-[#C85A32] text-[#FAF8F3]" : "bg-[#2E5A44] text-[#FAF8F3]"
+              }`}
+            >
+              <span>{toast.type === "error" ? "!" : "✓"}</span>
+              <span>{toast.msg}</span>
+            </div>
+          )}
+
+          {/* Fullscreen Poster Lightbox Modal */}
+          {posterZoomed && posterImage && (
+            <div
+              onClick={() => setPosterZoomed(false)}
+              className="fixed inset-0 z-50 bg-[#1A2B3C]/90 p-4 flex items-center justify-center cursor-zoom-out"
+            >
+              <div className="relative max-w-2xl w-full max-h-[92vh] flex flex-col items-center">
+                <img
+                  src={posterImage}
+                  alt="Season 3 Official Poster"
+                  className="max-h-[85vh] w-auto border-4 border-[#FAF8F3] shadow-2xl"
+                />
+                <button
+                  onClick={() => setPosterZoomed(false)}
+                  className="mt-3 bg-[#C85A32] text-[#FAF8F3] font-bold text-xs uppercase px-4 py-2 border-2 border-[#FAF8F3]"
+                >
+                  CLOSE PREVIEW
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Fixture Add / Edit Modal */}
+          {editingFixture && (
+            <div className="fixed inset-0 z-50 bg-[#1A2B3C]/80 p-3 sm:p-6 flex items-center justify-center overflow-y-auto">
+              <div className="swiss-box w-full max-w-lg p-4 sm:p-6 my-auto">
+                <div className="flex items-center justify-between border-b-2 border-[#1A2B3C] pb-2.5 mb-4">
+                  <h3 className="font-display text-lg uppercase text-[#1A2B3C]">
+                    EDIT / ADD FIXTURE
+                  </h3>
+                  <button
+                    onClick={() => setEditingFixture(null)}
+                    className="font-mono-swiss font-bold text-sm px-2 py-0.5 border border-[#1A2B3C] bg-[#F5F2EB] cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveFixture} className="space-y-3.5 text-sm">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
+                        ROUND / WEEK LABEL
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingFixture.week}
+                        onChange={(e) => setEditingFixture({ ...editingFixture, week: e.target.value })}
+                        placeholder="e.g. WEEK 6"
+                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2.5 py-1.5 font-bold uppercase"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
+                        DATE RANGE
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingFixture.dates}
+                        onChange={(e) => setEditingFixture({ ...editingFixture, dates: e.target.value })}
+                        placeholder="e.g. JAN 18 – JAN 22"
+                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2.5 py-1.5 font-bold uppercase"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="col-span-6">
+                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
+                        COURSE NAME
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingFixture.course}
+                        onChange={(e) => setEditingFixture({ ...editingFixture, course: e.target.value })}
+                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2.5 py-1.5 font-bold uppercase"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
+                        PAR
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={editingFixture.par}
+                        onChange={(e) => setEditingFixture({ ...editingFixture, par: e.target.value })}
+                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2 py-1.5 font-mono-swiss font-bold"
+                      />
+                    </div>
+                    <div className="col-span-4">
+                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
+                        ICON STYLE
+                      </label>
+                      <select
+                        value={editingFixture.pictogram || "wolfcreek"}
+                        onChange={(e) => setEditingFixture({ ...editingFixture, pictogram: e.target.value })}
+                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2 py-1.5 font-bold text-xs"
+                      >
+                        <option value="wolfcreek">Canyon Mesas</option>
+                        <option value="montvert">Alpine Peaks</option>
+                        <option value="barnbougle">Dunes &amp; Wave</option>
+                        <option value="royalisland">Tropical Island</option>
+                        <option value="imperiallake">Lake &amp; Pines</option>
+                        <option value="pinecoast">Coastal Cliffs</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Matchups Editor (if not Final) */}
+                  {!editingFixture.isFinal && (
+                    <div className="bg-[#F5F2EB] p-3 border-2 border-[#1A2B3C]">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-mono-swiss font-bold uppercase">
+                          HEAD-TO-HEAD MATCHUPS
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingFixture({
+                              ...editingFixture,
+                              matchups: [...(editingFixture.matchups || []), { p1: "Easty", p2: "Bill" }]
+                            })
+                          }
+                          className="bg-[#2E5A44] text-[#FAF8F3] text-[10px] font-bold px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
+                        >
+                          + ADD MATCHUP
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {(editingFixture.matchups || []).map((m, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <select
+                              value={m.p1}
+                              onChange={(e) => {
+                                const copy = [...editingFixture.matchups];
+                                copy[idx] = { ...copy[idx], p1: e.target.value };
+                                setEditingFixture({ ...editingFixture, matchups: copy });
+                              }}
+                              className="flex-1 bg-[#FAF8F3] border border-[#1A2B3C] px-2 py-1 font-bold text-xs"
+                            >
+                              {ROSTER.map((r) => (
+                                <option key={r.id} value={r.id}>{r.name}</option>
+                              ))}
+                            </select>
+                            <span className="font-mono-swiss text-xs font-bold">vs</span>
+                            <select
+                              value={m.p2}
+                              onChange={(e) => {
+                                const copy = [...editingFixture.matchups];
+                                copy[idx] = { ...copy[idx], p2: e.target.value };
+                                setEditingFixture({ ...editingFixture, matchups: copy });
+                              }}
+                              className="flex-1 bg-[#FAF8F3] border border-[#1A2B3C] px-2 py-1 font-bold text-xs"
+                            >
+                              {ROSTER.map((r) => (
+                                <option key={r.id} value={r.id}>{r.name}</option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const copy = editingFixture.matchups.filter((_, i) => i !== idx);
+                                setEditingFixture({ ...editingFixture, matchups: copy });
+                              }}
+                              className="bg-[#C85A32] text-[#FAF8F3] text-xs font-bold px-2 py-1 border border-[#1A2B3C] cursor-pointer"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-2 gap-2">
+                    {fixtures.some((f) => f.id === editingFixture.id) ? (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteFixture(editingFixture.id)}
+                        className="bg-[#C85A32] text-[#FAF8F3] text-xs font-bold uppercase px-3 py-2 border-2 border-[#1A2B3C] cursor-pointer"
+                      >
+                        DELETE WEEK
+                      </button>
+                    ) : (
+                      <div></div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditingFixture(null)}
+                        className="bg-[#FAF8F3] text-[#1A2B3C] text-xs font-bold uppercase px-3 py-2 border-2 border-[#1A2B3C] cursor-pointer"
+                      >
+                        CANCEL
+                      </button>
+                      <button
+                        type="submit"
+                        className="swiss-btn bg-[#2E5A44] text-[#FAF8F3] text-xs font-bold uppercase px-4 py-2 cursor-pointer"
+                      >
+                        SAVE FIXTURE
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================
+              1960s/70s OLYMPIC HEADER & DRAG-AND-DROP PLAYER ROSTER
+          ================================================================== */}
+          <header className="text-center mb-6">
+            {/* Top Status Strip */}
+            <div className="flex items-center justify-between text-[11px] font-mono-swiss uppercase tracking-wider border-b-2 border-[#1A2B3C] pb-2 mb-4">
+              <span className="font-bold">TAICHUNG • BRAVO WORLD TOUR</span>
+              <span className="flex items-center gap-1.5 font-bold">
+                <span
+                  className={`inline-block w-2.5 h-2.5 rounded-full border border-[#1A2B3C] ${
+                    dbStatus === "live"
+                      ? "bg-[#2E5A44]"
+                      : dbStatus === "connecting"
+                      ? "bg-[#D49B35]"
+                      : "bg-[#C85A32]"
+                  }`}
+                ></span>
+                {dbStatus === "live"
+                  ? "FIREBASE LIVE"
+                  : dbStatus === "connecting"
+                  ? "SYNCING..."
+                  : "OFFLINE CACHE"}
+              </span>
+            </div>
+
+            <h1 className="font-display text-3xl sm:text-5xl text-[#1A2B3C] uppercase leading-none tracking-tight">
+              THE CHUG MULLIGAN
+            </h1>
+            <h2 className="font-display text-xl sm:text-3xl text-[#1A2B3C] uppercase tracking-tight mt-0.5">
+              CHAMPIONSHIP
+            </h2>
+
+            {/* Larger, clean SEASON 3 Stamp (no "Official Portal") */}
+            <div className="inline-block bg-[#C85A32] text-[#FAF8F3] font-display text-xl sm:text-3xl tracking-[0.14em] uppercase px-7 py-1.5 mt-2.5 border-2 border-[#1A2B3C] shadow-[3px_3px_0px_#1A2B3C]">
+              SEASON 3
+            </div>
+
+            {/* Olympic Geometric Illustration + Fine-Dimple Golf Balls + Sneaky Wine Box */}
+            <div className="my-4">
+              <OlympicHeaderCrest />
+            </div>
+
+            {/* Interactive Player Roster with Drag-and-Drop Profile Photos */}
+            <div className="mt-2">
+              <div className="flex items-center justify-center gap-3 mb-2.5">
+                <span className="h-[2px] flex-1 bg-[#1A2B3C]"></span>
+                <span className="font-bold text-xs tracking-[0.15em] uppercase text-[#1A2B3C]">
+                  PLAYER ROSTER &amp; HANDICAPS <span className="font-mono-swiss text-[10px] text-[#4A6B82]">(DROP PHOTO ON AVATAR)</span>
+                </span>
+                <span className="h-[2px] flex-1 bg-[#1A2B3C]"></span>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+                {ROSTER.map((player) => (
+                  <div
+                    key={player.id}
+                    className="border-2 border-[#1A2B3C] shadow-[2.5px_2.5px_0px_#1A2B3C] pt-2 pb-2 px-1.5 flex flex-col items-center justify-between"
+                    style={{ backgroundColor: player.color, color: player.textColor }}
+                  >
+                    <PhotoDropAvatar
+                      photoUrl={playerPhotos[player.id]}
+                      fallbackText={player.name.slice(0, 2).toUpperCase()}
+                      bgColor="#FAF8F3"
+                      textColor="#1A2B3C"
+                      sizeClass="w-11 h-11 sm:w-12 sm:h-12"
+                      onUpload={(file) => handleUploadPlayerPhoto(player.id, file)}
+                      hint={`Upload ${player.name}'s photo`}
+                    />
+
+                    <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider truncate w-full text-center mt-1.5">
+                      {player.name}
+                    </div>
+
+                    <div className="mt-1 bg-[#FAF8F3] text-[#1A2B3C] border border-[#1A2B3C] px-2 py-0.2 font-display text-sm sm:text-base leading-tight">
+                      {player.hcp}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </header>
+
+          {/* =================================================================
+              4 SWISS GRID NAVIGATION TABS
+          ================================================================== */}
+          <nav className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6" aria-label="Primary Navigation">
+            {[
+              { id: "standings", label: "1. STANDINGS" },
+              { id: "fixtures", label: "2. FIXTURES" },
+              { id: "scorecard", label: editingId ? "3. EDIT MATCH" : "3. SCORECARD" },
+              { id: "records", label: "4. RECORDS & HOF" }
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`swiss-btn py-2.5 px-2.5 font-bold text-xs sm:text-sm uppercase tracking-wider text-center cursor-pointer ${
+                    isActive
+                      ? "bg-[#1A2B3C] text-[#FAF8F3]"
+                      : "bg-[#FAF8F3] text-[#1A2B3C] hover:bg-[#EAE5D9]"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* =================================================================
+              TAB 1: LIVE STANDINGS & RECENT RESULTS
+          ================================================================== */}
+          {activeTab === "standings" && (
+            <div className="space-y-8">
+              <section className="swiss-box p-4 sm:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#1A2B3C] pb-3 mb-4">
+                  <div>
+                    <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
+                      SEASON 3 STANDINGS
+                    </h3>
+                    <p className="text-xs text-[#4A6B82] font-semibold uppercase tracking-wider">
+                      WIN = 2 PTS • STRICTLY UNDER NET PAR = +1 PT • POINTS = FINAL STROKES
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setEditingId(null);
+                      setActiveTab("scorecard");
+                    }}
+                    className="swiss-btn bg-[#C85A32] text-[#FAF8F3] text-xs font-bold uppercase px-3 py-2 cursor-pointer"
+                  >
+                    + LOG SCORE
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-[#1A2B3C] text-[#FAF8F3] text-[10px] sm:text-[11px] font-mono-swiss uppercase">
+                        <th className="py-2.5 px-2">RNK</th>
+                        <th className="py-2.5 px-2">GOLFER</th>
+                        <th className="py-2.5 px-1.5 text-center">HCP</th>
+                        <th className="py-2.5 px-1.5 text-center">W-L-T</th>
+                        <th className="py-2.5 px-2 text-center bg-[#D49B35] text-[#1A2B3C]">PTS</th>
+                        <th className="py-2.5 px-2 text-center">FINALE</th>
+                        <th className="py-2.5 px-2 text-right">FORM</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y-2 divide-[#1A2B3C]/20 text-sm">
+                      {standings.map((row, idx) => (
+                        <tr
+                          key={row.id}
+                          className={idx === 0 && row.pts > 0 ? "bg-[#D49B35]/15 font-semibold" : "hover:bg-[#1A2B3C]/5"}
+                        >
+                          <td className="py-3 px-2 font-display text-base">
+                            {idx + 1}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-2">
+                              <PhotoDropAvatar
+                                photoUrl={playerPhotos[row.id]}
+                                fallbackText={row.name.slice(0, 2).toUpperCase()}
+                                bgColor={row.color}
+                                textColor={row.textColor}
+                                sizeClass="w-8 h-8"
+                                onUpload={(file) => handleUploadPlayerPhoto(row.id, file)}
+                                hint={`Upload ${row.name}'s photo`}
+                              />
+                              <div>
+                                <div className="font-bold text-[#1A2B3C] uppercase leading-none">
+                                  {row.name}
+                                </div>
+                                <div className="text-[10px] font-mono-swiss text-[#4A6B82] mt-0.5">
+                                  {row.played} PLY
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-1.5 text-center font-mono-swiss font-bold">
+                            {row.hcp}
+                          </td>
+                          <td className="py-3 px-1.5 text-center font-mono-swiss text-xs">
+                            {row.wins}-{row.losses}-{row.ties}
+                          </td>
+                          <td className="py-3 px-2 text-center font-display text-lg bg-[#D49B35]/20">
+                            {row.pts}
+                          </td>
+                          <td className="py-3 px-2 text-center font-mono-swiss font-bold text-xs text-[#2E5A44]">
+                            {row.pts > 0 ? `-${row.pts}` : "0"}
+                          </td>
+                          <td className="py-3 px-2 text-right">
+                            {row.form.length === 0 ? (
+                              <span className="text-[11px] font-mono-swiss text-[#4A6B82]">—</span>
+                            ) : (
+                              <div className="inline-flex gap-1">
+                                {row.form.slice(-4).map((f, i) => (
+                                  <span
+                                    key={i}
+                                    className={`inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border border-[#1A2B3C] ${
+                                      f === "W"
+                                        ? "bg-[#2E5A44] text-[#FAF8F3]"
+                                        : f === "L"
+                                        ? "bg-[#C85A32] text-[#FAF8F3]"
+                                        : "bg-[#D49B35] text-[#1A2B3C]"
+                                    }`}
+                                  >
+                                    {f}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              {/* RECENT SEASON 3 RESULTS (WITH IN-APP EDIT & DELETE) */}
+              <section className="swiss-box p-4 sm:p-5">
+                <div className="flex items-center justify-between border-b-2 border-[#1A2B3C] pb-3 mb-4">
+                  <div>
+                    <h3 className="font-display text-xl uppercase text-[#1A2B3C]">
+                      MATCH LOG ({matches.length})
+                    </h3>
+                    <p className="text-xs text-[#4A6B82] font-semibold uppercase">
+                      EDIT OR DELETE ANY SCORECARD IN-APP TO FIX MISTAKES
+                    </p>
+                  </div>
+                </div>
+
+                {matches.length === 0 ? (
+                  <div className="text-center py-8 border-2 border-dashed border-[#1A2B3C]/40 bg-[#F5F2EB]">
+                    <p className="font-bold text-sm uppercase text-[#1A2B3C]">
+                      NO SEASON 3 MATCHES LOGGED YET
+                    </p>
+                    <p className="text-xs text-[#4A6B82] mt-1">
+                      Open the <strong>Fixtures</strong> tab or hit <strong>+ LOG SCORE</strong> to record Week 1!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {[...matches].reverse().map((m) => {
+                      if (!m.playerB) return null;
+                      const out = calculateMatchOutcome(m);
+                      return (
+                        <div key={m.id} className="swiss-box-sm p-3.5 bg-[#F5F2EB]">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1A2B3C]/20 pb-2 mb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="bg-[#1A2B3C] text-[#FAF8F3] text-[10px] font-mono-swiss font-bold px-2 py-0.5 uppercase">
+                                {m.week || "MATCH"}
+                              </span>
+                              <span className="font-bold text-xs uppercase text-[#2E5A44]">
+                                {m.courseName} (PAR {m.par || 72})
+                              </span>
+                            </div>
+
+                            {/* In-App Edit & Delete Controls */}
+                            <div className="flex items-center gap-1.5">
+                              {confirmDeleteId === m.id ? (
+                                <>
+                                  <span className="text-[11px] font-bold text-[#C85A32] uppercase mr-1">
+                                    DELETE?
+                                  </span>
+                                  <button
+                                    onClick={() => handleDeleteMatch(m.id)}
+                                    className="bg-[#C85A32] text-[#FAF8F3] text-[11px] font-bold px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
+                                  >
+                                    YES
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmDeleteId(null)}
+                                    className="bg-[#FAF8F3] text-[#1A2B3C] text-[11px] font-bold px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
+                                  >
+                                    NO
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => handleEditMatch(m)}
+                                    className="bg-[#FAF8F3] hover:bg-[#D49B35] text-[#1A2B3C] text-[11px] font-bold uppercase px-2.5 py-0.5 border border-[#1A2B3C] cursor-pointer"
+                                  >
+                                    EDIT
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmDeleteId(m.id)}
+                                    className="bg-[#FAF8F3] hover:bg-[#C85A32] hover:text-[#FAF8F3] text-[#1A2B3C] text-[11px] font-bold uppercase px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
+                                  >
+                                    DEL
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            {/* Player A */}
+                            <div
+                              className={`p-2 border border-[#1A2B3C] flex items-center justify-between ${
+                                out.resultA === "W" ? "bg-[#2E5A44]/15" : "bg-[#FAF8F3]"
+                              }`}
+                            >
+                              <div>
+                                <div className="font-bold uppercase flex items-center gap-1.5">
+                                  <span>{m.playerA}</span>
+                                  {out.resultA === "W" && (
+                                    <span className="text-[10px] bg-[#2E5A44] text-[#FAF8F3] px-1.5 py-0.2">
+                                      WIN
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] font-mono-swiss text-[#4A6B82]">
+                                  Gross {m.grossA} − HCP {m.hcpA} = <strong>Net {out.netA}</strong>
+                                  {out.beatHcpA && " (Under Par!)"}
+                                </div>
+                              </div>
+                              <div className="font-display text-base text-[#1A2B3C]">
+                                +{out.ptsA} <span className="text-[10px] font-mono-swiss">PTS</span>
+                              </div>
+                            </div>
+
+                            {/* Player B */}
+                            <div
+                              className={`p-2 border border-[#1A2B3C] flex items-center justify-between ${
+                                out.resultB === "W" ? "bg-[#2E5A44]/15" : "bg-[#FAF8F3]"
+                              }`}
+                            >
+                              <div>
+                                <div className="font-bold uppercase flex items-center gap-1.5">
+                                  <span>{m.playerB}</span>
+                                  {out.resultB === "W" && (
+                                    <span className="text-[10px] bg-[#2E5A32] bg-[#2E5A44] text-[#FAF8F3] px-1.5 py-0.2">
+                                      WIN
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] font-mono-swiss text-[#4A6B82]">
+                                  Gross {m.grossB} − HCP {m.hcpB} = <strong>Net {out.netB}</strong>
+                                  {out.beatHcpB && " (Under Par!)"}
+                                </div>
+                              </div>
+                              <div className="font-display text-base text-[#1A2B3C]">
+                                +{out.ptsB} <span className="text-[10px] font-mono-swiss">PTS</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
+
+          {/* =================================================================
+              TAB 2: DEDICATED FIXTURES TAB (POSTER UPLOAD + INTERACTIVE SCHEDULE)
+          ================================================================== */}
+          {activeTab === "fixtures" && (
+            <div className="space-y-6">
+              {/* Official Season 3 Poster Drag-and-Drop Showcase */}
+              <section className="swiss-box p-4 sm:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#1A2B3C] pb-3 mb-4">
+                  <div>
+                    <h3 className="font-display text-lg sm:text-xl uppercase text-[#1A2B3C]">
+                      OFFICIAL FIXTURE POSTER
+                    </h3>
+                    <p className="text-xs text-[#4A6B82] font-semibold uppercase">
+                      DRAG &amp; DROP YOUR SEASON 3 POSTER IMAGE TO SHARE WITH THE GROUP
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => posterInputRef.current && posterInputRef.current.click()}
+                      className="swiss-btn bg-[#D49B35] text-[#1A2B3C] text-xs font-bold uppercase px-3 py-1.5 cursor-pointer"
+                    >
+                      {posterImage ? "REPLACE POSTER" : "UPLOAD POSTER"}
+                    </button>
+                    {posterImage && (
+                      <button
+                        onClick={handleClearPoster}
+                        className="bg-[#FAF8F3] text-[#C85A32] text-xs font-bold uppercase px-2.5 py-1.5 border-2 border-[#1A2B3C] cursor-pointer"
+                      >
+                        REMOVE
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    ref={posterInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleUploadPoster(e.target.files[0]);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                </div>
+
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setPosterDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    setPosterDragging(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setPosterDragging(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                      handleUploadPoster(e.dataTransfer.files[0]);
+                    }
+                  }}
+                  className={`border-2 border-dashed transition-colors ${
+                    posterDragging
+                      ? "border-[#C85A32] bg-[#D49B35]/20"
+                      : "border-[#1A2B3C]/50 bg-[#F5F2EB]"
+                  }`}
+                >
+                  {posterImage ? (
+                    <div className="p-3 text-center">
+                      <img
+                        src={posterImage}
+                        alt="Season 3 Official Fixture Poster"
+                        onClick={() => setPosterZoomed(true)}
+                        className="max-h-[460px] w-auto mx-auto border-2 border-[#1A2B3C] shadow-[4px_4px_0px_#1A2B3C] cursor-zoom-in"
+                      />
+                      <div className="text-[11px] font-mono-swiss uppercase text-[#4A6B82] mt-2">
+                        TAP POSTER TO ENLARGE • DRAG A NEW IMAGE ANYWHERE HERE TO REPLACE
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => posterInputRef.current && posterInputRef.current.click()}
+                      className="py-10 px-4 text-center cursor-pointer"
+                    >
+                      <div className="inline-block bg-[#1A2B3C] text-[#FAF8F3] font-display text-xs uppercase px-3 py-1 mb-2">
+                        DROP POSTER IMAGE HERE
+                      </div>
+                      <p className="font-bold text-sm uppercase text-[#1A2B3C]">
+                        Drag &amp; drop your Season 3 Olympic poster (or tap to browse)
+                      </p>
+                      <p className="text-xs text-[#4A6B82] mt-1">
+                        Automatically synced via Firebase so everyone can view it on their phone
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Interactive Weekly Fixture Schedule */}
+              <section className="swiss-box overflow-hidden">
+                <div className="bg-[#1A2B3C] text-[#FAF8F3] px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 className="font-display text-lg sm:text-xl uppercase tracking-wide">
+                      SEASON 3 — THE FIXTURES
+                    </h3>
+                    <span className="text-[11px] font-mono-swiss text-[#D49B35]">
+                      TAP ANY MATCHUP TO LOG SCORE • EDIT WEEKS IN-APP
+                    </span>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setEditingFixture({
+                        id: "week-" + Date.now(),
+                        order: fixtures.length + 1,
+                        week: `WEEK ${fixtures.filter((f) => !f.isFinal).length + 1}`,
+                        dates: "TBD",
+                        course: "NEW COURSE",
+                        par: 72,
+                        location: "Bravo World Tour",
+                        badgeColor: "#2E5A44",
+                        pictogram: "wolfcreek",
+                        isFinal: false,
+                        matchups: [
+                          { p1: "Easty", p2: "Bill" },
+                          { p1: "Dunk", p2: "Thorgan" },
+                          { p1: "Chinlie", p2: "Dew" }
+                        ]
+                      })
+                    }
+                    className="bg-[#D49B35] text-[#1A2B3C] font-bold text-xs uppercase px-3 py-1.5 border border-[#FAF8F3] cursor-pointer"
+                  >
+                    + ADD WEEK
+                  </button>
+                </div>
+
+                <div className="divide-y-2 divide-[#1A2B3C]">
+                  {fixtures
+                    .filter((w) => !w.isFinal)
+                    .map((wk) => (
+                      <div
+                        key={wk.id}
+                        className="p-3.5 sm:p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-[#FAF8F3]"
+                      >
+                        {/* Week Pill + Edit trigger */}
+                        <div className="md:col-span-3 flex md:flex-col items-center justify-between gap-2">
+                          <div
+                            className="w-full rounded-lg border-2 border-[#1A2B3C] py-2 px-2 text-center text-[#FAF8F3] shadow-[2px_2px_0px_#1A2B3C]"
+                            style={{ backgroundColor: wk.badgeColor || "#C85A32" }}
+                          >
+                            <div className="font-display text-base leading-none">{wk.week}</div>
+                            <div className="font-mono-swiss text-[10px] mt-1 tracking-tight">
+                              {wk.dates}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setEditingFixture({ ...wk })}
+                            className="text-[10px] font-mono-swiss font-bold uppercase underline text-[#4A6B82] hover:text-[#1A2B3C] cursor-pointer shrink-0"
+                          >
+                            EDIT WEEK
+                          </button>
+                        </div>
+
+                        {/* Course Name + Custom Geometric Pictogram */}
+                        <div className="md:col-span-5 flex items-center justify-between md:border-r-2 md:border-[#1A2B3C]/25 md:pr-3">
+                          <div>
+                            <div className="font-display text-lg text-[#2E5A44] leading-tight">
+                              {wk.course}
+                            </div>
+                            <div className="text-[11px] font-mono-swiss text-[#4A6B82]">
+                              PAR {wk.par} • {(wk.location || "Bravo").split("(")[0].trim()}
+                            </div>
+                          </div>
+                          <CoursePictogram type={wk.pictogram} />
+                        </div>
+
+                        {/* Head-to-Head Matchups */}
+                        <div className="md:col-span-4 space-y-1.5">
+                          {(wk.matchups || []).map((pair, idx) => {
+                            const p1 = Array.isArray(pair) ? pair[0] : pair.p1;
+                            const p2 = Array.isArray(pair) ? pair[1] : pair.p2;
+                            const playedMatch = isFixturePlayed(wk.week, p1, p2);
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() =>
+                                  playedMatch
+                                    ? handleEditMatch(playedMatch)
+                                    : handleSelectFixture(wk, p1, p2)
+                                }
+                                className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-bold border border-[#1A2B3C] transition-colors cursor-pointer ${
+                                  playedMatch
+                                    ? "bg-[#2E5A44] text-[#FAF8F3]"
+                                    : "bg-[#F5F2EB] hover:bg-[#D49B35] text-[#1A2B3C]"
+                                }`}
+                              >
+                                <span className="w-16 text-left">{p1}</span>
+                                <span className="font-mono-swiss text-[10px] opacity-80">
+                                  {playedMatch ? "✓ DONE" : "vs"}
+                                </span>
+                                <span className="w-16 text-right">{p2}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Championship Final Banner */}
+                {fixtures
+                  .filter((w) => w.isFinal)
+                  .map((fin) => (
+                    <div
+                      key={fin.id}
+                      className="border-t-4 border-[#1A2B3C] bg-[#F5F2EB] p-4 text-center relative"
+                    >
+                      <button
+                        onClick={() => setEditingFixture({ ...fin })}
+                        className="absolute top-2 right-3 text-[10px] font-mono-swiss font-bold uppercase underline text-[#4A6B82] hover:text-[#1A2B3C] cursor-pointer"
+                      >
+                        EDIT FINAL
+                      </button>
+                      <div className="inline-block bg-[#1A2B3C] text-[#FAF8F3] font-display text-sm sm:text-base uppercase tracking-widest px-6 py-1.5 mb-2">
+                        THE CHAMPIONSHIP FINAL
+                      </div>
+                      <div className="font-display text-2xl sm:text-4xl text-[#C85A32] uppercase tracking-tight">
+                        {fin.dates}
+                      </div>
+                      <div className="font-bold text-xs font-mono-swiss uppercase text-[#1A2B3C] mt-1 mb-2">
+                        VENUE: {fin.course} (PAR {fin.par}) • SEEDED BY LEAGUE POINTS
+                      </div>
+                      <CoursePictogram type="pinecoast" />
+                    </div>
+                  ))}
+              </section>
+            </div>
+          )}
+
+          {/* =================================================================
+              TAB 3: HEAD-TO-HEAD SCORECARD ENTRY (NO SOLO ROUNDS)
+          ================================================================== */}
+          {activeTab === "scorecard" && (
+            <section className="swiss-box p-4 sm:p-6">
+              <div className="flex items-center justify-between border-b-2 border-[#1A2B3C] pb-3 mb-5">
+                <div>
+                  <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
+                    {editingId ? "EDIT MATCH SCORECARD" : "OFFICIAL SCORECARD"}
+                  </h3>
+                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
+                    HEAD-TO-HEAD MATCH PLAY • STRICTLY UNDER NET PAR = +1 BONUS PT
+                  </p>
+                </div>
+                {editingId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(null);
+                      setGrossA("");
+                      setGrossB("");
+                      setTiebreaker("NONE");
+                    }}
+                    className="swiss-btn bg-[#FAF8F3] text-xs font-bold uppercase px-3 py-1.5 cursor-pointer"
+                  >
+                    CANCEL EDIT
+                  </button>
+                )}
+              </div>
+
+              <form onSubmit={handleSubmitMatch} className="space-y-5">
+                {/* Week & Course Selection */}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#F5F2EB] p-3.5 border-2 border-[#1A2B3C]">
+                  <div className="sm:col-span-4">
+                    <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                      SCHEDULE WEEK
+                    </label>
+                    <select
+                      value={selectedWeek}
+                      onChange={(e) => handleWeekSelectChange(e.target.value)}
+                      className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm"
+                    >
+                      {fixtures.map((s) => (
+                        <option key={s.id} value={s.week}>
+                          {s.week} — {s.course}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="sm:col-span-5">
+                    <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                      BRAVO COURSE NAME
+                    </label>
+                    <input
+                      type="text"
+                      value={courseName}
+                      onChange={(e) => setCourseName(e.target.value)}
+                      required
+                      className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm uppercase"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-3">
+                    <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                      COURSE PAR
+                    </label>
+                    <input
+                      type="number"
+                      min="54"
+                      max="76"
+                      value={coursePar}
+                      onChange={(e) => setCoursePar(e.target.value)}
+                      required
+                      className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Player A & Player B Cards (Strictly H2H) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Player A */}
+                  <div className="border-2 border-[#1A2B3C] bg-[#FAF8F3] p-4 shadow-[3px_3px_0px_#2E5A44]">
+                    <div className="text-xs font-display uppercase text-[#2E5A44] mb-3">
+                      PLAYER A
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                          GOLFER
+                        </label>
+                        <select
+                          value={playerA}
+                          onChange={(e) => handlePlayerAChange(e.target.value)}
+                          className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm"
+                        >
+                          {ROSTER.map((r) => (
+                            <option key={r.id} value={r.id}>
+                              {r.name} (HCP {r.hcp})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                            HCP
+                          </label>
+                          <input
+                            type="number"
+                            step="1"
+                            value={hcpA}
+                            onChange={(e) => setHcpA(e.target.value)}
+                            required
+                            className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                            GROSS SCORE
+                          </label>
+                          <input
+                            type="number"
+                            min="45"
+                            max="150"
+                            placeholder="e.g. 78"
+                            value={grossA}
+                            onChange={(e) => setGrossA(e.target.value)}
+                            required
+                            className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base focus:bg-[#D49B35]/20 outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Player B */}
+                  <div className="border-2 border-[#1A2B3C] bg-[#FAF8F3] p-4 shadow-[3px_3px_0px_#C85A32]">
+                    <div className="text-xs font-display uppercase text-[#C85A32] mb-3">
+                      PLAYER B
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                          OPPONENT
+                        </label>
+                        <select
+                          value={playerB}
+                          onChange={(e) => handlePlayerBChange(e.target.value)}
+                          className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm"
+                        >
+                          {ROSTER.filter((r) => r.id !== playerA).map((r) => (
+                            <option key={r.id} value={r.id}>
+                              {r.name} (HCP {r.hcp})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                            HCP
+                          </label>
+                          <input
+                            type="number"
+                            step="1"
+                            value={hcpB}
+                            onChange={(e) => setHcpB(e.target.value)}
+                            required
+                            className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                            GROSS SCORE
+                          </label>
+                          <input
+                            type="number"
+                            min="45"
+                            max="150"
+                            placeholder="e.g. 76"
+                            value={grossB}
+                            onChange={(e) => setGrossB(e.target.value)}
+                            required
+                            className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base focus:bg-[#D49B35]/20 outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tiebreaker Selector */}
+                <div className="bg-[#F5F2EB] p-3 border-2 border-[#1A2B3C]">
+                  <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
+                    TIEBREAKER (IF NET SCORES ARE LEVEL)
+                  </label>
+                  <select
+                    value={tiebreaker}
+                    onChange={(e) => setTiebreaker(e.target.value)}
+                    className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-xs uppercase"
+                  >
+                    <option value="NONE">NO TIE / SPLIT POINTS IF LEVEL (1 PT EACH)</option>
+                    <option value="A">{playerA.toUpperCase()} WINS SUDDEN-DEATH TIEBREAKER (+2 PTS)</option>
+                    <option value="B">{playerB.toUpperCase()} WINS SUDDEN-DEATH TIEBREAKER (+2 PTS)</option>
+                  </select>
+                </div>
+
+                {/* Live Calculation Preview Box */}
+                {livePreview && (
+                  <div className="bg-[#1A2B3C] text-[#FAF8F3] p-4 border-2 border-[#1A2B3C]">
+                    <div className="text-[10px] font-mono-swiss uppercase text-[#D49B35] mb-2">
+                      LIVE POINTS PREVIEW (PAR {coursePar})
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center justify-between border border-[#FAF8F3]/25 px-3 py-2">
+                        <div>
+                          <span className="font-bold uppercase">{playerA}</span>
+                          <div className="text-xs font-mono-swiss text-[#8DA18E]">
+                            Net {livePreview.netA}{" "}
+                            {livePreview.beatHcpA ? "(Under Par +1)" : "(Even/Over Par)"}
+                          </div>
+                        </div>
+                        <span className="font-display text-xl text-[#D49B35]">
+                          +{livePreview.ptsA} PTS
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between border border-[#FAF8F3]/25 px-3 py-2">
+                        <div>
+                          <span className="font-bold uppercase">{playerB}</span>
+                          <div className="text-xs font-mono-swiss text-[#8DA18E]">
+                            Net {livePreview.netB}{" "}
+                            {livePreview.beatHcpB ? "(Under Par +1)" : "(Even/Over Par)"}
+                          </div>
+                        </div>
+                        <span className="font-display text-xl text-[#D49B35]">
+                          +{livePreview.ptsB} PTS
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="swiss-btn w-full bg-[#2E5A44] hover:bg-[#234635] text-[#FAF8F3] font-display text-lg uppercase py-3.5 tracking-wider cursor-pointer disabled:opacity-50"
+                >
+                  {submitting
+                    ? "SAVING TO FIREBASE..."
+                    : editingId
+                    ? "UPDATE MATCH RESULT"
+                    : "SUBMIT OFFICIAL SCORECARD"}
+                </button>
+              </form>
+            </section>
+          )}
+
+          {/* =================================================================
+              TAB 4: HALL OF FAME, ALL-TIME RECORDS & OFFICIAL RULES
+          ================================================================== */}
+          {activeTab === "records" && (
+            <div className="space-y-6">
+              {/* Yellow Jacket Hall of Fame with Photo Upload Slots */}
+              <section className="swiss-box p-4 sm:p-5">
+                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
+                  <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
+                    YELLOW JACKET HALL OF FAME
+                  </h3>
+                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
+                    DRAG &amp; DROP CHAMPION JACKET PHOTOS ONTO EACH PORTRAIT
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {HALL_OF_FAME_ENTRIES.map((champ) => (
+                    <div
+                      key={champ.id}
+                      className="border-2 border-[#1A2B3C] bg-[#F5F2EB] p-4 shadow-[3px_3px_0px_#D49B35] flex flex-col items-center text-center"
+                    >
+                      <div className="inline-block bg-[#D49B35] text-[#1A2B3C] font-mono-swiss font-bold text-[10px] px-2 py-0.5 border border-[#1A2B3C] mb-3">
+                        {champ.season}
+                      </div>
+
+                      <PhotoDropAvatar
+                        photoUrl={hofPhotos[champ.id]}
+                        fallbackText={champ.champion.slice(0, 2)}
+                        bgColor={champ.badgeColor}
+                        textColor="#FAF8F3"
+                        sizeClass="w-20 h-20"
+                        onUpload={(file) => handleUploadHofPhoto(champ.id, file)}
+                        hint={`Upload ${champ.champion} Yellow Jacket photo`}
+                      />
+
+                      <div className="font-display text-2xl text-[#1A2B3C] uppercase mt-2.5">
+                        {champ.champion}
+                      </div>
+                      <div className="text-[11px] font-bold uppercase text-[#2E5A44] mt-0.5">
+                        {champ.subtitle}
+                      </div>
+                      <p className="text-xs text-[#1A2B3C]/80 mt-2 leading-relaxed">
+                        {champ.notes}
+                      </p>
+                    </div>
+                  ))}
+
+                  {/* Season 3 Contender Slot */}
+                  <div className="border-2 border-dashed border-[#1A2B3C] bg-[#FAF8F3] p-4 flex flex-col items-center justify-center text-center">
+                    <div className="inline-block bg-[#1A2B3C] text-[#FAF8F3] font-mono-swiss font-bold text-[10px] px-2 py-0.5 mb-3">
+                      SEASON 3 (2027)
+                    </div>
+                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#1A2B3C] flex items-center justify-center font-display text-2xl text-[#4A6B82]">
+                      ?
+                    </div>
+                    <div className="font-display text-xl text-[#C85A32] uppercase mt-2.5">
+                      TO BE DECIDED
+                    </div>
+                    <div className="text-[11px] font-mono-swiss uppercase text-[#4A6B82] mt-1">
+                      JAN 23 • PINE COAST
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* All-Time League Records */}
+              <section className="swiss-box p-4 sm:p-5">
+                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
+                  <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
+                    ALL-TIME LEAGUE RECORDS
+                  </h3>
+                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
+                    SEASONS 1–3 COMBINED • AUTOMATICALLY UPDATES WHEN BROKEN
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {dynamicRecords.map((rec, idx) => (
+                    <div
+                      key={idx}
+                      className="border-2 border-[#1A2B3C] bg-[#F5F2EB] p-3.5 flex flex-col justify-between"
+                      style={{ borderLeftWidth: "8px", borderLeftColor: rec.accent }}
+                    >
+                      <div className="text-[10px] font-mono-swiss font-bold uppercase text-[#4A6B82]">
+                        {rec.title}
+                      </div>
+                      <div className="font-display text-2xl text-[#1A2B3C] my-1">
+                        {rec.value}
+                      </div>
+                      <div className="text-xs font-bold uppercase text-[#1A2B3C]">
+                        {rec.holder}{" "}
+                        <span className="font-normal text-[#4A6B82]">• {rec.detail}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* World Tour Course Records */}
+              <section className="swiss-box p-4 sm:p-5">
+                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
+                  <h3 className="font-display text-xl uppercase text-[#1A2B3C]">
+                    WORLD TOUR COURSE RECORDS
+                  </h3>
+                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
+                    HISTORICAL LOW NET &amp; PURIST (GROSS) BENCHMARKS
+                  </p>
+                </div>
+
+                <div className="divide-y-2 divide-[#1A2B3C]/20">
+                  {LEGACY_COURSE_RECORDS.map((c, i) => (
+                    <div key={i} className="py-3 flex flex-wrap items-center justify-between gap-2">
+                      <div className="font-bold text-sm uppercase text-[#2E5A44]">
+                        {c.course}
+                      </div>
+                      <div className="flex gap-4 text-xs font-mono-swiss">
+                        <span>
+                          LOW NET: <strong>{c.lowNet}</strong> ({c.lowNetHolder})
+                        </span>
+                        <span>
+                          PURIST: <strong>{c.purist}</strong> ({c.puristHolder})
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Official Season 3 Rules */}
+              <section className="swiss-box p-4 sm:p-5">
+                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
+                  <h3 className="font-display text-xl uppercase text-[#1A2B3C]">
+                    OFFICIAL RULES &amp; REGULATIONS
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="border-2 border-[#1A2B3C] p-3.5 bg-[#FAF8F3]">
+                    <div className="font-display text-sm uppercase text-[#C85A32] mb-1.5">
+                      1. REGULAR SEASON SCORING
+                    </div>
+                    <ul className="space-y-1.5 text-xs leading-relaxed">
+                      <li>• <strong>Match Win:</strong> 2 Points (Head-to-Head only)</li>
+                      <li>• <strong>Handicap Bonus:</strong> +1 Point for shooting <em>strictly under</em> net par (Net &lt; Course Par)</li>
+                      <li>• <strong>Ties:</strong> Sudden-death playoff hole if played; otherwise 1 Point each</li>
+                    </ul>
+                  </div>
+
+                  <div className="border-2 border-[#1A2B3C] p-3.5 bg-[#FAF8F3]">
+                    <div className="font-display text-sm uppercase text-[#2E5A44] mb-1.5">
+                      2. GRAND FINALE (PINE COAST)
+                    </div>
+                    <ul className="space-y-1.5 text-xs leading-relaxed">
+                      <li>• <strong>Points to Strokes:</strong> Regular season points convert directly into minus strokes in the Final (e.g., 6 pts = −6 shots)</li>
+                      <li>• <strong>Champion:</strong> Lowest net score after handicap and point-bonus strokes wins the Yellow Jacket</li>
+                    </ul>
+                  </div>
+
+                  <div className="border-2 border-[#1A2B3C] p-3.5 bg-[#FAF8F3] sm:col-span-2">
+                    <div className="font-display text-sm uppercase text-[#4A6B82] mb-1.5">
+                      3. BRAVO SIMULATOR IN-GAME SETTINGS
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                      <div className="bg-[#F5F2EB] p-2 border border-[#1A2B3C]">
+                        <strong>GIMME CIRCLE:</strong> 1.5 Yards
+                      </div>
+                      <div className="bg-[#F5F2EB] p-2 border border-[#1A2B3C]">
+                        <strong>PUTTING:</strong> Auto-line only (no changing direction)
+                      </div>
+                      <div className="bg-[#F5F2EB] p-2 border border-[#1A2B3C]">
+                        <strong>MULLIGANS:</strong> 3 per round, tee shots only (max 1 per hole)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
