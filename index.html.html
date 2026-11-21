@@ -181,12 +181,66 @@
     // =========================================================================
 
     const ROSTER = [
-      { id: "Dew", name: "Dew", hcp: 0, color: "#8DA18E", textColor: "#1A2B3C", tag: "THE PURIST" },
-      { id: "Bill", name: "Bill", hcp: 6, color: "#4A6B82", textColor: "#FAF8F3", tag: "S2 CHAMPION" },
-      { id: "Thorgan", name: "Thorgan", hcp: 6, color: "#D49B35", textColor: "#1A2B3C", tag: "ROOKIE" },
-      { id: "Chinlie", name: "Chinlie", hcp: 6, color: "#2E5A44", textColor: "#FAF8F3", tag: "COMMISSIONER" },
-      { id: "Easty", name: "Easty", hcp: 9, color: "#C85A32", textColor: "#FAF8F3", tag: "S1 CHAMPION" },
-      { id: "Dunk", name: "Dunk", hcp: 18, color: "#1A2B3C", textColor: "#FAF8F3", tag: "DUNKHAUSER" }
+      {
+        id: "Dew",
+        name: "Dew",
+        hcp: 0,
+        color: "#8DA18E",
+        textColor: "#1A2B3C",
+        tag: "THE PURIST",
+        gif: "./dew.gif",
+        defaultBio: "Scratch golfer and holder of the all-time Purist's Record (63 gross). Cool under pressure, sunglasses on."
+      },
+      {
+        id: "Bill",
+        name: "Bill",
+        hcp: 6,
+        color: "#4A6B82",
+        textColor: "#FAF8F3",
+        tag: "S2 CHAMPION",
+        gif: "./bill.gif",
+        defaultBio: "Reigning Season 2 Yellow Jacket champion. Fierce match-play competitor—just keep an eye on the local seagulls."
+      },
+      {
+        id: "Thorgan",
+        name: "Thorgan",
+        hcp: 6,
+        color: "#D49B35",
+        textColor: "#1A2B3C",
+        tag: "ROOKIE",
+        gif: "./thorgan.gif",
+        defaultBio: "Season 3 newcomer entering the Bravo World Tour off a 6 handicap. Backwards cap locked in and ready to contend."
+      },
+      {
+        id: "Chinlie",
+        name: "Chinlie",
+        hcp: 6,
+        color: "#2E5A44",
+        textColor: "#FAF8F3",
+        tag: "COMMISSIONER",
+        gif: "./chinlie.gif",
+        defaultBio: "League Commissioner and owner of the biggest blowout win in tour history. Brings elite vibes and dangerous net scoring."
+      },
+      {
+        id: "Easty",
+        name: "Easty",
+        hcp: 9,
+        color: "#C85A32",
+        textColor: "#FAF8F3",
+        tag: "S1 CHAMPION",
+        gif: "./easty.gif",
+        defaultBio: "Inaugural Season 1 Yellow Jacket winner. Fueled by Kirkland boxed red wine and equally capable of brilliance or chaos."
+      },
+      {
+        id: "Dunk",
+        name: "Dunk",
+        hcp: 18,
+        color: "#1A2B3C",
+        textColor: "#FAF8F3",
+        tag: "DUNKHAUSER",
+        gif: "./dunk.gif",
+        defaultBio: "Fresh new Season 3 look and holder of the all-time Lowest Net record (56). Never count out an 18-handicapper on a heater."
+      }
     ];
 
     const DEFAULT_FIXTURES = [
@@ -341,6 +395,8 @@
     const HALL_OF_FAME_ENTRIES = [
       {
         id: "season-1",
+        playerId: "Easty",
+        defaultGif: "./easty.gif",
         season: "SEASON 1 (2025)",
         champion: "EASTY",
         subtitle: "Inaugural Yellow Jacket Winner",
@@ -349,6 +405,8 @@
       },
       {
         id: "season-2",
+        playerId: "Bill",
+        defaultGif: "./bill.gif",
         season: "SEASON 2 (2026)",
         champion: "BILL",
         subtitle: "Reigning Yellow Jacket Champion",
@@ -362,7 +420,6 @@
     // =========================================================================
 
     function OlympicHeaderCrest() {
-      // Fine-grid golf ball dimple coordinates around (0,0) for radius 10.5
       const dimples = [
         [0, -7], [-4, -5.5], [4, -5.5],
         [-7, -2], [-2.5, -2], [2.5, -2], [7, -2],
@@ -373,19 +430,15 @@
 
       return (
         <svg viewBox="0 0 360 112" className="w-full max-w-md mx-auto h-auto select-none" aria-label="Chug Mulligan 1972 Olympic Motif">
-          {/* Left concentric Olympic geometric tracks + golf bags + sneaky red wine box */}
           <g stroke="#1A2B3C" strokeWidth="2.2" fill="none">
-            {/* Retro striped pine silhouette */}
             <polygon points="16,96 28,22 40,96" fill="#2E5A44" />
             <line x1="21" y1="74" x2="35" y2="74" stroke="#F5F2EB" strokeWidth="2.5" />
             <line x1="23" y1="58" x2="33" y2="58" stroke="#F5F2EB" strokeWidth="2.5" />
 
-            {/* Concentric 1972 Munich-style ribbon arcs */}
             <path d="M 46 96 L 46 34 L 74 96" stroke="#C85A32" strokeWidth="4" />
             <path d="M 54 96 L 54 48 L 82 96" stroke="#D49B35" strokeWidth="4" />
             <path d="M 62 96 L 62 62 L 90 96" stroke="#2E5A44" strokeWidth="4" />
 
-            {/* Sneaky Box of Red Wine tucked next to the golf bags */}
             <g transform="translate(8, 72)">
               <rect x="0" y="0" width="16" height="24" rx="1.5" fill="#8B1E24" stroke="#1A2B3C" strokeWidth="2" />
               <rect x="2.5" y="4" width="11" height="7" fill="#F5F2EB" stroke="none" />
@@ -393,7 +446,6 @@
               <rect x="13" y="16" width="4" height="3.5" fill="#D49B35" stroke="#1A2B3C" strokeWidth="1.2" />
             </g>
 
-            {/* Two minimalist golf bags */}
             <rect x="29" y="64" width="13" height="32" rx="2" fill="#4A6B82" />
             <line x1="32" y1="64" x2="30" y2="55" strokeWidth="2" />
             <line x1="36" y1="64" x2="36" y2="53" strokeWidth="2" />
@@ -404,12 +456,10 @@
             <line x1="53" y1="61" x2="53" y2="49" strokeWidth="2" />
             <line x1="57" y1="61" x2="59" y2="52" strokeWidth="2" />
 
-            {/* Left concentric golf ball target with realistic fine golf-ball dimples */}
             <circle cx="96" cy="74" r="21" stroke="#2E5A44" strokeWidth="3.5" />
             <circle cx="96" cy="74" r="15.5" stroke="#C85A32" strokeWidth="3.5" />
             <g transform="translate(96, 74)">
               <circle cx="0" cy="0" r="10.5" fill="#FAF8F3" stroke="#1A2B3C" strokeWidth="1.8" />
-              {/* Subtle shadow crescent on lower right of golf ball */}
               <path d="M 4 -9 A 10.5 10.5 0 0 1 -5 9 A 9 9 0 0 0 4 -9 Z" fill="#1A2B3C" opacity="0.14" stroke="none" />
               {dimples.map(([dx, dy], idx) => (
                 <circle key={idx} cx={dx} cy={dy} r="0.72" fill="#1A2B3C" opacity="0.55" stroke="none" />
@@ -417,7 +467,6 @@
             </g>
           </g>
 
-          {/* Center Crossed Irons & Pint Glass */}
           <g transform="translate(180, 56)" stroke="#1A2B3C" strokeWidth="2.4" fill="none">
             <line x1="-26" y1="-26" x2="24" y2="30" strokeWidth="3" strokeLinecap="round" />
             <path d="M 22 28 L 32 25 C 34 29 31 34 25 33 Z" fill="#2E5A44" />
@@ -431,11 +480,9 @@
             <line x1="-10.5" y1="-13" x2="10.5" y2="-13" stroke="#1A2B3C" strokeWidth="1.8" />
           </g>
 
-          {/* Right concentric Olympic tracks & flagstick */}
           <g stroke="#1A2B3C" strokeWidth="2.2" fill="none">
             <circle cx="256" cy="74" r="21" stroke="#D49B35" strokeWidth="3.5" />
             <circle cx="256" cy="74" r="15.5" stroke="#2E5A44" strokeWidth="3.5" />
-            {/* Right Golf Ball with fine dimples */}
             <g transform="translate(256, 74)">
               <circle cx="0" cy="0" r="10.5" fill="#FAF8F3" stroke="#1A2B3C" strokeWidth="1.8" />
               <path d="M 4 -9 A 10.5 10.5 0 0 1 -5 9 A 9 9 0 0 0 4 -9 Z" fill="#1A2B3C" opacity="0.14" stroke="none" />
@@ -444,18 +491,15 @@
               ))}
             </g>
 
-            {/* Diagonal speed lines */}
             <line x1="268" y1="56" x2="294" y2="22" stroke="#C85A32" strokeWidth="4" />
             <line x1="275" y1="62" x2="301" y2="28" stroke="#2E5A44" strokeWidth="4" />
             <line x1="282" y1="68" x2="308" y2="34" stroke="#D49B35" strokeWidth="4" />
 
-            {/* Flagstick & flags */}
             <ellipse cx="296" cy="94" rx="8" ry="3" fill="#1A2B3C" />
             <line x1="296" y1="94" x2="308" y2="20" stroke="#1A2B3C" strokeWidth="2.8" />
             <polygon points="308,21 334,27 308,35" fill="#C85A32" />
             <polygon points="305,40 326,45 304,51" fill="#D49B35" />
 
-            {/* Horizontal ground tracks */}
             <line x1="282" y1="84" x2="348" y2="84" stroke="#2E5A44" strokeWidth="3.5" />
             <line x1="282" y1="90" x2="348" y2="90" stroke="#D49B35" strokeWidth="3.5" />
             <line x1="282" y1="96" x2="348" y2="96" stroke="#C85A32" strokeWidth="3.5" />
@@ -540,15 +584,31 @@
     }
 
     // =========================================================================
-    // DRAG-AND-DROP PHOTO AVATAR COMPONENT
+    // AVATAR COMPONENT (SUPPORTS STATIC PHOTOS, GIF FALLBACKS & OPTIONAL UPLOAD)
     // =========================================================================
 
-    function PhotoDropAvatar({ photoUrl, fallbackText, bgColor, textColor, sizeClass = "w-12 h-12", onUpload, hint = "Drop photo" }) {
+    function PhotoDropAvatar({
+      photoUrl,
+      fallbackPhotoUrl,
+      fallbackText,
+      bgColor,
+      textColor,
+      sizeClass = "w-12 h-12",
+      onUpload,
+      hint = "Update photo"
+    }) {
       const [dragging, setDragging] = useState(false);
+      const [imgFailed, setImgFailed] = useState(false);
+      const [fallbackFailed, setFallbackFailed] = useState(false);
       const inputRef = useRef(null);
 
+      useEffect(() => {
+        setImgFailed(false);
+        setFallbackFailed(false);
+      }, [photoUrl, fallbackPhotoUrl]);
+
       const handleFiles = async (files) => {
-        if (!files || !files[0]) return;
+        if (!files || !files[0] || !onUpload) return;
         try {
           await onUpload(files[0]);
         } catch (err) {
@@ -557,61 +617,223 @@
       };
 
       const onDrop = (e) => {
+        if (!onUpload) return;
         e.preventDefault();
         e.stopPropagation();
         setDragging(false);
         handleFiles(e.dataTransfer.files);
       };
 
+      const activeSrc = !imgFailed && photoUrl
+        ? photoUrl
+        : !fallbackFailed && fallbackPhotoUrl
+        ? fallbackPhotoUrl
+        : null;
+
       return (
         <div
           onDragOver={(e) => {
+            if (!onUpload) return;
             e.preventDefault();
             e.stopPropagation();
             setDragging(true);
           }}
           onDragLeave={(e) => {
+            if (!onUpload) return;
             e.preventDefault();
             e.stopPropagation();
             setDragging(false);
           }}
           onDrop={onDrop}
           onClick={(e) => {
+            if (!onUpload) return;
             e.stopPropagation();
             if (inputRef.current) inputRef.current.click();
           }}
-          title={`${hint} (Drag & drop or tap)`}
-          className={`relative ${sizeClass} rounded-full border-2 border-[#1A2B3C] overflow-hidden flex items-center justify-center cursor-pointer select-none group transition-transform ${
-            dragging ? "scale-110 ring-4 ring-[#D49B35]" : "hover:scale-105"
-          }`}
+          title={onUpload ? hint : undefined}
+          className={`relative ${sizeClass} rounded-full border-2 border-[#1A2B3C] overflow-hidden flex items-center justify-center select-none group transition-transform ${
+            onUpload ? "cursor-pointer" : ""
+          } ${dragging ? "scale-105 ring-4 ring-[#D49B35]" : onUpload ? "hover:scale-105" : ""}`}
           style={{ backgroundColor: bgColor, color: textColor }}
         >
-          {photoUrl ? (
-            <img src={photoUrl} alt={fallbackText} className="w-full h-full object-cover" />
+          {activeSrc ? (
+            <img
+              src={activeSrc}
+              alt={fallbackText}
+              onError={() => {
+                if (!imgFailed && photoUrl) setImgFailed(true);
+                else setFallbackFailed(true);
+              }}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <span className="font-display text-sm sm:text-base">{fallbackText}</span>
           )}
 
-          {/* Subtle camera hover/drop overlay */}
+          {onUpload && (
+            <div
+              className={`absolute inset-0 bg-[#1A2B3C]/70 text-[#FAF8F3] flex items-center justify-center text-[10px] font-mono-swiss font-bold uppercase text-center px-1 transition-opacity ${
+                dragging ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              }`}
+            >
+              {dragging ? "DROP!" : "UPDATE"}
+            </div>
+          )}
+
+          {onUpload && (
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                handleFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // ANIMATED PROFILE CARD COMPONENT (FOR TAB 5: PROFILES)
+    // =========================================================================
+
+    function PlayerProfileCard({ player, rank, stats, staticPhoto, bio, onSaveBio }) {
+      const [gifFailed, setGifFailed] = useState(false);
+      const [editingBio, setEditingBio] = useState(false);
+      const [draftBio, setDraftBio] = useState(bio || player.defaultBio);
+
+      useEffect(() => {
+        setDraftBio(bio || player.defaultBio);
+      }, [bio, player.defaultBio]);
+
+      const activeImg = !gifFailed ? player.gif : staticPhoto;
+
+      const handleSave = async () => {
+        await onSaveBio(player.id, draftBio.trim());
+        setEditingBio(false);
+      };
+
+      return (
+        <article className="swiss-box overflow-hidden flex flex-col bg-[#FAF8F3]">
+          {/* Colored Olympic Header Strip */}
           <div
-            className={`absolute inset-0 bg-[#1A2B3C]/75 text-[#FAF8F3] flex items-center justify-center text-[9px] font-mono-swiss font-bold uppercase text-center px-1 transition-opacity ${
-              dragging ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-            }`}
+            className="px-4 py-2.5 border-b-2 border-[#1A2B3C] flex items-center justify-between"
+            style={{ backgroundColor: player.color, color: player.textColor }}
           >
-            {dragging ? "DROP!" : "PHOTO"}
+            <div>
+              <div className="font-display text-xl uppercase leading-none tracking-wide">
+                {player.name}
+              </div>
+              <div className="font-mono-swiss text-[10px] font-bold uppercase opacity-90 mt-0.5">
+                {player.tag}
+              </div>
+            </div>
+            <div className="bg-[#FAF8F3] text-[#1A2B3C] border-2 border-[#1A2B3C] px-2.5 py-0.5 text-center shadow-[2px_2px_0px_#1A2B3C]">
+              <div className="text-[9px] font-mono-swiss font-bold uppercase leading-none">HCP</div>
+              <div className="font-display text-base leading-tight">{player.hcp}</div>
+            </div>
           </div>
 
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              handleFiles(e.target.files);
-              e.target.value = "";
-            }}
-          />
-        </div>
+          {/* Square Animated GIF Showcase */}
+          <div className="relative aspect-square w-full bg-[#F5F2EB] border-b-2 border-[#1A2B3C] overflow-hidden flex items-center justify-center">
+            {activeImg ? (
+              <img
+                src={activeImg}
+                alt={`${player.name} animated profile`}
+                onError={() => {
+                  if (!gifFailed) setGifFailed(true);
+                }}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div
+                className="w-28 h-28 rounded-full border-2 border-[#1A2B3C] flex items-center justify-center font-display text-4xl"
+                style={{ backgroundColor: player.color, color: player.textColor }}
+              >
+                {player.name.slice(0, 2).toUpperCase()}
+              </div>
+            )}
+
+            {/* Rank Stamp Badge */}
+            <div className="absolute top-2.5 left-2.5 bg-[#1A2B3C] text-[#D49B35] font-mono-swiss font-bold text-[10px] px-2 py-0.5 border border-[#FAF8F3] uppercase">
+              RANK #{rank}
+            </div>
+          </div>
+
+          {/* Live Season 3 Stats Strip */}
+          <div className="grid grid-cols-3 divide-x-2 divide-[#1A2B3C] border-b-2 border-[#1A2B3C] bg-[#F5F2EB] text-center">
+            <div className="py-2 px-1">
+              <div className="text-[9px] font-mono-swiss font-bold text-[#4A6B82] uppercase">RECORD</div>
+              <div className="font-mono-swiss font-bold text-xs text-[#1A2B3C]">
+                {stats ? `${stats.wins}-${stats.losses}-${stats.ties}` : "0-0-0"}
+              </div>
+            </div>
+            <div className="py-2 px-1">
+              <div className="text-[9px] font-mono-swiss font-bold text-[#4A6B82] uppercase">POINTS</div>
+              <div className="font-display text-sm text-[#1A2B3C]">
+                {stats ? stats.pts : 0}
+              </div>
+            </div>
+            <div className="py-2 px-1">
+              <div className="text-[9px] font-mono-swiss font-bold text-[#4A6B82] uppercase">FINALE</div>
+              <div className="font-mono-swiss font-bold text-xs text-[#2E5A44]">
+                {stats && stats.pts > 0 ? `-${stats.pts} STR` : "EVEN"}
+              </div>
+            </div>
+          </div>
+
+          {/* Editable Bio / Scouting Report */}
+          <div className="p-3.5 flex-1 flex flex-col justify-between bg-[#FAF8F3]">
+            {editingBio ? (
+              <div className="space-y-2">
+                <textarea
+                  rows="3"
+                  value={draftBio}
+                  onChange={(e) => setDraftBio(e.target.value)}
+                  className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] p-2 text-xs leading-relaxed outline-none focus:bg-[#FAF8F3]"
+                  placeholder={`Write ${player.name}'s scouting report...`}
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDraftBio(bio || player.defaultBio);
+                      setEditingBio(false);
+                    }}
+                    className="bg-[#FAF8F3] text-[#1A2B3C] text-[10px] font-bold uppercase px-2.5 py-1 border border-[#1A2B3C] cursor-pointer"
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className="bg-[#2E5A44] text-[#FAF8F3] text-[10px] font-bold uppercase px-2.5 py-1 border border-[#1A2B3C] cursor-pointer"
+                  >
+                    SAVE BIO
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xs text-[#1A2B3C]/90 leading-relaxed">
+                  {bio || player.defaultBio}
+                </p>
+                <div className="mt-2.5 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setEditingBio(true)}
+                    className="text-[10px] font-mono-swiss font-bold uppercase underline text-[#4A6B82] hover:text-[#1A2B3C] cursor-pointer"
+                  >
+                    EDIT BIO
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </article>
       );
     }
 
@@ -637,8 +859,8 @@
 
       const netA = gA - hA;
       const netB = gB - hB;
-      const beatHcpA = netA < coursePar; // Strictly under net par
-      const beatHcpB = netB < coursePar; // Strictly under net par
+      const beatHcpA = netA < coursePar;
+      const beatHcpB = netB < coursePar;
 
       let ptsA = beatHcpA ? 1 : 0;
       let ptsB = beatHcpB ? 1 : 0;
@@ -658,7 +880,6 @@
         resultA = "L";
         winner = playerB;
       } else {
-        // Tied Net Scores
         if (tiebreaker === "A") {
           ptsA += 2;
           resultA = "W";
@@ -700,6 +921,7 @@
       const [activeTab, setActiveTab] = useState("standings");
       const [matches, setMatches] = useState([]);
       const [playerPhotos, setPlayerPhotos] = useState({});
+      const [playerBios, setPlayerBios] = useState({});
       const [hofPhotos, setHofPhotos] = useState({});
       const [fixtures, setFixtures] = useState(DEFAULT_FIXTURES);
       const [posterImage, setPosterImage] = useState(null);
@@ -762,18 +984,23 @@
             );
             unsubs.push(unsubMatches);
 
-            // 2. Player Profile Photos Listener
+            // 2. Player Profile Photos & Bios Listener
             const unsubPlayers = onSnapshot(
               collection(db, "season3_players"),
               (snapshot) => {
-                const map = {};
+                const photoMap = {};
+                const bioMap = {};
                 snapshot.docs.forEach((d) => {
-                  if (d.data().photoUrl) map[d.id] = d.data().photoUrl;
+                  const data = d.data();
+                  if (data.photoUrl) photoMap[d.id] = data.photoUrl;
+                  if (data.bio !== undefined) bioMap[d.id] = data.bio;
                 });
-                setPlayerPhotos(map);
+                setPlayerPhotos(photoMap);
+                setPlayerBios(bioMap);
               },
               () => {
                 setPlayerPhotos(JSON.parse(localStorage.getItem("cm_s3_player_photos") || "{}"));
+                setPlayerBios(JSON.parse(localStorage.getItem("cm_s3_player_bios") || "{}"));
               }
             );
             unsubs.push(unsubPlayers);
@@ -794,7 +1021,7 @@
             );
             unsubs.push(unsubHof);
 
-            // 4. Custom Fixtures Listener (merges with DEFAULT_FIXTURES if empty)
+            // 4. Custom Fixtures Listener
             const unsubFixtures = onSnapshot(
               collection(db, "season3_fixtures"),
               (snapshot) => {
@@ -851,7 +1078,7 @@
       // Upload Player Profile Photo (Compressed & Saved to Firestore)
       const handleUploadPlayerPhoto = async (playerId, file) => {
         try {
-          const dataUrl = await compressImageFile(file, 240, 0.8);
+          const dataUrl = await compressImageFile(file, 260, 0.82);
           const updated = { ...playerPhotos, [playerId]: dataUrl };
           setPlayerPhotos(updated);
           localStorage.setItem("cm_s3_player_photos", JSON.stringify(updated));
@@ -867,6 +1094,27 @@
           showToast(`${playerId}'s profile photo updated!`);
         } catch (err) {
           showToast(err.message || "Could not upload photo.", "error");
+        }
+      };
+
+      // Save Player Profile Bio to Firestore
+      const handleSavePlayerBio = async (playerId, bioText) => {
+        try {
+          const updated = { ...playerBios, [playerId]: bioText };
+          setPlayerBios(updated);
+          localStorage.setItem("cm_s3_player_bios", JSON.stringify(updated));
+
+          if (dbStatus === "live" && window.FirebaseDB) {
+            const { db, doc, setDoc } = window.FirebaseDB;
+            await setDoc(
+              doc(db, "season3_players", playerId),
+              { bio: bioText, updatedAtMs: Date.now() },
+              { merge: true }
+            );
+          }
+          showToast(`${playerId}'s profile bio saved!`);
+        } catch (err) {
+          showToast("Could not save bio.", "error");
         }
       };
 
@@ -940,7 +1188,6 @@
         };
 
         try {
-          // Ensure all default fixtures exist in Firestore if this is the first edit
           if (dbStatus === "live" && window.FirebaseDB) {
             const { db, doc, setDoc } = window.FirebaseDB;
             const existsInList = fixtures.some((f) => f.id === cleanFixture.id);
@@ -973,7 +1220,6 @@
         try {
           if (dbStatus === "live" && window.FirebaseDB) {
             const { db, doc, setDoc, deleteDoc } = window.FirebaseDB;
-            // Persist remaining fixtures first so defaults don't snap back
             const remaining = fixtures.filter((f) => f.id !== fixtureId);
             for (const item of remaining) {
               await setDoc(doc(db, "season3_fixtures", item.id), item, { merge: true });
@@ -1003,1540 +1249,3 @@
             ties: 0,
             pts: 0,
             netDiffSum: 0,
-            form: []
-          };
-        });
-
-        matches.forEach((m) => {
-          if (!m.playerB) return; // Strictly H2H
-          const outcome = calculateMatchOutcome(m);
-
-          const sA = statsMap[m.playerA];
-          if (sA) {
-            sA.played += 1;
-            sA.pts += outcome.ptsA;
-            sA.netDiffSum += outcome.netA - (Number(m.par) || 72);
-            if (outcome.resultA === "W") sA.wins += 1;
-            else if (outcome.resultA === "L") sA.losses += 1;
-            else sA.ties += 1;
-            sA.form.push(outcome.resultA);
-          }
-
-          const sB = statsMap[m.playerB];
-          if (sB) {
-            sB.played += 1;
-            sB.pts += outcome.ptsB;
-            sB.netDiffSum += outcome.netB - (Number(m.par) || 72);
-            if (outcome.resultB === "W") sB.wins += 1;
-            else if (outcome.resultB === "L") sB.losses += 1;
-            else sB.ties += 1;
-            sB.form.push(outcome.resultB);
-          }
-        });
-
-        return Object.values(statsMap).sort((a, b) => {
-          if (b.pts !== a.pts) return b.pts - a.pts;
-          if (b.wins !== a.wins) return b.wins - a.wins;
-          if (a.played !== b.played && (a.played === 0 || b.played === 0)) return b.played - a.played;
-          return a.netDiffSum - b.netDiffSum;
-        });
-      }, [matches]);
-
-      // Compute All-Time Records (Merging Legacy Seasons 1-2 with Season 3)
-      const dynamicRecords = useMemo(() => {
-        const records = LEGACY_LEAGUE_RECORDS.map((r) => ({ ...r }));
-
-        matches.forEach((m) => {
-          if (!m.playerB) return;
-          const out = calculateMatchOutcome(m);
-          const gA = Number(m.grossA);
-          const gB = Number(m.grossB);
-
-          // Lowest Gross
-          if (gA < parseInt(records[0].value, 10)) {
-            records[0] = { ...records[0], value: `${gA} strokes`, holder: m.playerA, detail: `${m.courseName} (S3)` };
-          }
-          if (gB < parseInt(records[0].value, 10)) {
-            records[0] = { ...records[0], value: `${gB} strokes`, holder: m.playerB, detail: `${m.courseName} (S3)` };
-          }
-
-          // Lowest Net
-          if (out.netA < parseInt(records[1].value, 10)) {
-            records[1] = { ...records[1], value: `${out.netA} net`, holder: m.playerA, detail: `${m.courseName} (S3)` };
-          }
-          if (out.netB < parseInt(records[1].value, 10)) {
-            records[1] = { ...records[1], value: `${out.netB} net`, holder: m.playerB, detail: `${m.courseName} (S3)` };
-          }
-
-          // Worst Meltdown
-          if (out.netA > parseInt(records[2].value, 10)) {
-            records[2] = { ...records[2], value: `${out.netA} net`, holder: m.playerA, detail: `${m.courseName} (S3)` };
-          }
-          if (out.netB > parseInt(records[2].value, 10)) {
-            records[2] = { ...records[2], value: `${out.netB} net`, holder: m.playerB, detail: `${m.courseName} (S3)` };
-          }
-
-          // Biggest Blowout
-          if (out.margin > parseInt(records[3].value, 10)) {
-            const winName = out.netA < out.netB ? m.playerA : m.playerB;
-            const loseName = out.netA < out.netB ? m.playerB : m.playerA;
-            records[3] = { ...records[3], value: `${out.margin} strokes`, holder: winName, detail: `def. ${loseName} (S3)` };
-          }
-        });
-
-        // Most Matches Played
-        standings.forEach((s) => {
-          if (s.played > parseInt(records[4].value, 10)) {
-            records[4] = { ...records[4], value: `${s.played} matches`, holder: s.name, detail: "Season 3" };
-          }
-        });
-
-        return records;
-      }, [matches, standings]);
-
-      // Pre-fill scorecard when user clicks a fixture pairing
-      const handleSelectFixture = (weekObj, p1, p2) => {
-        setEditingId(null);
-        setSelectedWeek(weekObj.week);
-        setCourseName(weekObj.course);
-        setCoursePar(weekObj.par);
-        const r1 = ROSTER.find((r) => r.id === p1);
-        const r2 = ROSTER.find((r) => r.id === p2);
-        setPlayerA(p1);
-        setHcpA(r1 ? r1.hcp : 0);
-        setGrossA("");
-        setPlayerB(p2 || "Bill");
-        setHcpB(r2 ? r2.hcp : 6);
-        setGrossB("");
-        setTiebreaker("NONE");
-        setActiveTab("scorecard");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      };
-
-      const handleWeekSelectChange = (wk) => {
-        setSelectedWeek(wk);
-        const found = fixtures.find((s) => s.week === wk);
-        if (found) {
-          setCourseName(found.course);
-          setCoursePar(found.par);
-        }
-      };
-
-      const handlePlayerAChange = (val) => {
-        setPlayerA(val);
-        const found = ROSTER.find((r) => r.id === val);
-        if (found) setHcpA(found.hcp);
-        if (val === playerB) {
-          const alt = ROSTER.find((r) => r.id !== val);
-          if (alt) {
-            setPlayerB(alt.id);
-            setHcpB(alt.hcp);
-          }
-        }
-      };
-
-      const handlePlayerBChange = (val) => {
-        setPlayerB(val);
-        const found = ROSTER.find((r) => r.id === val);
-        if (found) setHcpB(found.hcp);
-      };
-
-      const handleEditMatch = (match) => {
-        setEditingId(match.id);
-        setSelectedWeek(match.week || "WEEK 1");
-        setCourseName(match.courseName);
-        setCoursePar(match.par || 72);
-        setPlayerA(match.playerA);
-        setHcpA(match.hcpA);
-        setGrossA(String(match.grossA));
-        setPlayerB(match.playerB || "Bill");
-        setHcpB(match.hcpB ?? 6);
-        setGrossB(match.grossB !== undefined && match.grossB !== null ? String(match.grossB) : "");
-        setTiebreaker(match.tiebreaker || "NONE");
-        setActiveTab("scorecard");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      };
-
-      const handleDeleteMatch = async (matchId) => {
-        try {
-          if (dbStatus === "live" && window.FirebaseDB) {
-            const { db, doc, deleteDoc } = window.FirebaseDB;
-            await deleteDoc(doc(db, "season3_matches", matchId));
-          } else {
-            const updated = matches.filter((m) => m.id !== matchId);
-            setMatches(updated);
-            localStorage.setItem("cm_s3_matches", JSON.stringify(updated));
-          }
-          setConfirmDeleteId(null);
-          showToast("Match deleted and standings updated.");
-        } catch (err) {
-          console.error("Delete failed:", err);
-          showToast("Could not delete match.", "error");
-        }
-      };
-
-      const handleSubmitMatch = async (e) => {
-        e.preventDefault();
-        if (!playerA || !playerB || !grossA || !grossB) {
-          showToast("Please select both golfers and enter both Gross scores.", "error");
-          return;
-        }
-        if (playerB === playerA) {
-          showToast("Player A and Player B cannot be the same golfer!", "error");
-          return;
-        }
-
-        setSubmitting(true);
-        const payload = {
-          week: selectedWeek,
-          courseName: courseName.trim().toUpperCase(),
-          par: Number(coursePar) || 72,
-          playerA,
-          hcpA: Number(hcpA),
-          grossA: Number(grossA),
-          playerB,
-          hcpB: Number(hcpB),
-          grossB: Number(grossB),
-          tiebreaker,
-          updatedAtMs: Date.now()
-        };
-
-        try {
-          if (dbStatus === "live" && window.FirebaseDB) {
-            const { db, collection, addDoc, updateDoc, doc } = window.FirebaseDB;
-            if (editingId) {
-              await updateDoc(doc(db, "season3_matches", editingId), payload);
-              showToast("Match updated in live database!");
-            } else {
-              await addDoc(collection(db, "season3_matches"), {
-                ...payload,
-                createdAtMs: Date.now()
-              });
-              showToast("Scorecard logged to Firebase!");
-            }
-          } else {
-            if (editingId) {
-              const updated = matches.map((m) => (m.id === editingId ? { ...m, ...payload } : m));
-              setMatches(updated);
-              localStorage.setItem("cm_s3_matches", JSON.stringify(updated));
-              showToast("Match updated locally!");
-            } else {
-              const newDoc = {
-                id: "local_" + Date.now(),
-                ...payload,
-                createdAtMs: Date.now()
-              };
-              const updated = [...matches, newDoc];
-              setMatches(updated);
-              localStorage.setItem("cm_s3_matches", JSON.stringify(updated));
-              showToast("Scorecard saved locally!");
-            }
-          }
-
-          setEditingId(null);
-          setGrossA("");
-          setGrossB("");
-          setTiebreaker("NONE");
-          setActiveTab("standings");
-        } catch (err) {
-          console.error("Save error:", err);
-          showToast("Error saving scorecard.", "error");
-        } finally {
-          setSubmitting(false);
-        }
-      };
-
-      const livePreview = useMemo(() => {
-        if (!grossA || !grossB || !playerA || !playerB) return null;
-        return calculateMatchOutcome({
-          playerA,
-          hcpA,
-          grossA,
-          playerB,
-          hcpB,
-          grossB,
-          par: coursePar,
-          tiebreaker
-        });
-      }, [playerA, hcpA, grossA, playerB, hcpB, grossB, coursePar, tiebreaker]);
-
-      const isFixturePlayed = (weekLabel, p1, p2) => {
-        return matches.find(
-          (m) =>
-            m.week === weekLabel &&
-            ((m.playerA === p1 && m.playerB === p2) || (m.playerA === p2 && m.playerB === p1))
-        );
-      };
-
-      return (
-        <div className="max-w-3xl mx-auto px-3 sm:px-6 pt-5">
-          {/* Toast Notification */}
-          {toast && (
-            <div
-              className={`fixed bottom-5 right-5 z-50 px-4 py-3 border-2 border-[#1A2B3C] shadow-[4px_4px_0px_#1A2B3C] font-bold text-sm flex items-center gap-2 ${
-                toast.type === "error" ? "bg-[#C85A32] text-[#FAF8F3]" : "bg-[#2E5A44] text-[#FAF8F3]"
-              }`}
-            >
-              <span>{toast.type === "error" ? "!" : "✓"}</span>
-              <span>{toast.msg}</span>
-            </div>
-          )}
-
-          {/* Fullscreen Poster Lightbox Modal */}
-          {posterZoomed && posterImage && (
-            <div
-              onClick={() => setPosterZoomed(false)}
-              className="fixed inset-0 z-50 bg-[#1A2B3C]/90 p-4 flex items-center justify-center cursor-zoom-out"
-            >
-              <div className="relative max-w-2xl w-full max-h-[92vh] flex flex-col items-center">
-                <img
-                  src={posterImage}
-                  alt="Season 3 Official Poster"
-                  className="max-h-[85vh] w-auto border-4 border-[#FAF8F3] shadow-2xl"
-                />
-                <button
-                  onClick={() => setPosterZoomed(false)}
-                  className="mt-3 bg-[#C85A32] text-[#FAF8F3] font-bold text-xs uppercase px-4 py-2 border-2 border-[#FAF8F3]"
-                >
-                  CLOSE PREVIEW
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Fixture Add / Edit Modal */}
-          {editingFixture && (
-            <div className="fixed inset-0 z-50 bg-[#1A2B3C]/80 p-3 sm:p-6 flex items-center justify-center overflow-y-auto">
-              <div className="swiss-box w-full max-w-lg p-4 sm:p-6 my-auto">
-                <div className="flex items-center justify-between border-b-2 border-[#1A2B3C] pb-2.5 mb-4">
-                  <h3 className="font-display text-lg uppercase text-[#1A2B3C]">
-                    EDIT / ADD FIXTURE
-                  </h3>
-                  <button
-                    onClick={() => setEditingFixture(null)}
-                    className="font-mono-swiss font-bold text-sm px-2 py-0.5 border border-[#1A2B3C] bg-[#F5F2EB] cursor-pointer"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <form onSubmit={handleSaveFixture} className="space-y-3.5 text-sm">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
-                        ROUND / WEEK LABEL
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={editingFixture.week}
-                        onChange={(e) => setEditingFixture({ ...editingFixture, week: e.target.value })}
-                        placeholder="e.g. WEEK 6"
-                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2.5 py-1.5 font-bold uppercase"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
-                        DATE RANGE
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={editingFixture.dates}
-                        onChange={(e) => setEditingFixture({ ...editingFixture, dates: e.target.value })}
-                        placeholder="e.g. JAN 18 – JAN 22"
-                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2.5 py-1.5 font-bold uppercase"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-3">
-                    <div className="col-span-6">
-                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
-                        COURSE NAME
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={editingFixture.course}
-                        onChange={(e) => setEditingFixture({ ...editingFixture, course: e.target.value })}
-                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2.5 py-1.5 font-bold uppercase"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
-                        PAR
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        value={editingFixture.par}
-                        onChange={(e) => setEditingFixture({ ...editingFixture, par: e.target.value })}
-                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2 py-1.5 font-mono-swiss font-bold"
-                      />
-                    </div>
-                    <div className="col-span-4">
-                      <label className="block text-[10px] font-mono-swiss font-bold uppercase mb-1">
-                        ICON STYLE
-                      </label>
-                      <select
-                        value={editingFixture.pictogram || "wolfcreek"}
-                        onChange={(e) => setEditingFixture({ ...editingFixture, pictogram: e.target.value })}
-                        className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-2 py-1.5 font-bold text-xs"
-                      >
-                        <option value="wolfcreek">Canyon Mesas</option>
-                        <option value="montvert">Alpine Peaks</option>
-                        <option value="barnbougle">Dunes &amp; Wave</option>
-                        <option value="royalisland">Tropical Island</option>
-                        <option value="imperiallake">Lake &amp; Pines</option>
-                        <option value="pinecoast">Coastal Cliffs</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Matchups Editor (if not Final) */}
-                  {!editingFixture.isFinal && (
-                    <div className="bg-[#F5F2EB] p-3 border-2 border-[#1A2B3C]">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-mono-swiss font-bold uppercase">
-                          HEAD-TO-HEAD MATCHUPS
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setEditingFixture({
-                              ...editingFixture,
-                              matchups: [...(editingFixture.matchups || []), { p1: "Easty", p2: "Bill" }]
-                            })
-                          }
-                          className="bg-[#2E5A44] text-[#FAF8F3] text-[10px] font-bold px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
-                        >
-                          + ADD MATCHUP
-                        </button>
-                      </div>
-
-                      <div className="space-y-2">
-                        {(editingFixture.matchups || []).map((m, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <select
-                              value={m.p1}
-                              onChange={(e) => {
-                                const copy = [...editingFixture.matchups];
-                                copy[idx] = { ...copy[idx], p1: e.target.value };
-                                setEditingFixture({ ...editingFixture, matchups: copy });
-                              }}
-                              className="flex-1 bg-[#FAF8F3] border border-[#1A2B3C] px-2 py-1 font-bold text-xs"
-                            >
-                              {ROSTER.map((r) => (
-                                <option key={r.id} value={r.id}>{r.name}</option>
-                              ))}
-                            </select>
-                            <span className="font-mono-swiss text-xs font-bold">vs</span>
-                            <select
-                              value={m.p2}
-                              onChange={(e) => {
-                                const copy = [...editingFixture.matchups];
-                                copy[idx] = { ...copy[idx], p2: e.target.value };
-                                setEditingFixture({ ...editingFixture, matchups: copy });
-                              }}
-                              className="flex-1 bg-[#FAF8F3] border border-[#1A2B3C] px-2 py-1 font-bold text-xs"
-                            >
-                              {ROSTER.map((r) => (
-                                <option key={r.id} value={r.id}>{r.name}</option>
-                              ))}
-                            </select>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const copy = editingFixture.matchups.filter((_, i) => i !== idx);
-                                setEditingFixture({ ...editingFixture, matchups: copy });
-                              }}
-                              className="bg-[#C85A32] text-[#FAF8F3] text-xs font-bold px-2 py-1 border border-[#1A2B3C] cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between pt-2 gap-2">
-                    {fixtures.some((f) => f.id === editingFixture.id) ? (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteFixture(editingFixture.id)}
-                        className="bg-[#C85A32] text-[#FAF8F3] text-xs font-bold uppercase px-3 py-2 border-2 border-[#1A2B3C] cursor-pointer"
-                      >
-                        DELETE WEEK
-                      </button>
-                    ) : (
-                      <div></div>
-                    )}
-
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditingFixture(null)}
-                        className="bg-[#FAF8F3] text-[#1A2B3C] text-xs font-bold uppercase px-3 py-2 border-2 border-[#1A2B3C] cursor-pointer"
-                      >
-                        CANCEL
-                      </button>
-                      <button
-                        type="submit"
-                        className="swiss-btn bg-[#2E5A44] text-[#FAF8F3] text-xs font-bold uppercase px-4 py-2 cursor-pointer"
-                      >
-                        SAVE FIXTURE
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* =================================================================
-              1960s/70s OLYMPIC HEADER & DRAG-AND-DROP PLAYER ROSTER
-          ================================================================== */}
-          <header className="text-center mb-6">
-            {/* Top Status Strip */}
-            <div className="flex items-center justify-between text-[11px] font-mono-swiss uppercase tracking-wider border-b-2 border-[#1A2B3C] pb-2 mb-4">
-              <span className="font-bold">TAICHUNG • BRAVO WORLD TOUR</span>
-              <span className="flex items-center gap-1.5 font-bold">
-                <span
-                  className={`inline-block w-2.5 h-2.5 rounded-full border border-[#1A2B3C] ${
-                    dbStatus === "live"
-                      ? "bg-[#2E5A44]"
-                      : dbStatus === "connecting"
-                      ? "bg-[#D49B35]"
-                      : "bg-[#C85A32]"
-                  }`}
-                ></span>
-                {dbStatus === "live"
-                  ? "FIREBASE LIVE"
-                  : dbStatus === "connecting"
-                  ? "SYNCING..."
-                  : "OFFLINE CACHE"}
-              </span>
-            </div>
-
-            <h1 className="font-display text-3xl sm:text-5xl text-[#1A2B3C] uppercase leading-none tracking-tight">
-              THE CHUG MULLIGAN
-            </h1>
-            <h2 className="font-display text-xl sm:text-3xl text-[#1A2B3C] uppercase tracking-tight mt-0.5">
-              CHAMPIONSHIP
-            </h2>
-
-            {/* Larger, clean SEASON 3 Stamp (no "Official Portal") */}
-            <div className="inline-block bg-[#C85A32] text-[#FAF8F3] font-display text-xl sm:text-3xl tracking-[0.14em] uppercase px-7 py-1.5 mt-2.5 border-2 border-[#1A2B3C] shadow-[3px_3px_0px_#1A2B3C]">
-              SEASON 3
-            </div>
-
-            {/* Olympic Geometric Illustration + Fine-Dimple Golf Balls + Sneaky Wine Box */}
-            <div className="my-4">
-              <OlympicHeaderCrest />
-            </div>
-
-            {/* Interactive Player Roster with Drag-and-Drop Profile Photos */}
-            <div className="mt-2">
-              <div className="flex items-center justify-center gap-3 mb-2.5">
-                <span className="h-[2px] flex-1 bg-[#1A2B3C]"></span>
-                <span className="font-bold text-xs tracking-[0.15em] uppercase text-[#1A2B3C]">
-                  PLAYER ROSTER &amp; HANDICAPS <span className="font-mono-swiss text-[10px] text-[#4A6B82]">(DROP PHOTO ON AVATAR)</span>
-                </span>
-                <span className="h-[2px] flex-1 bg-[#1A2B3C]"></span>
-              </div>
-
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
-                {ROSTER.map((player) => (
-                  <div
-                    key={player.id}
-                    className="border-2 border-[#1A2B3C] shadow-[2.5px_2.5px_0px_#1A2B3C] pt-2 pb-2 px-1.5 flex flex-col items-center justify-between"
-                    style={{ backgroundColor: player.color, color: player.textColor }}
-                  >
-                    <PhotoDropAvatar
-                      photoUrl={playerPhotos[player.id]}
-                      fallbackText={player.name.slice(0, 2).toUpperCase()}
-                      bgColor="#FAF8F3"
-                      textColor="#1A2B3C"
-                      sizeClass="w-11 h-11 sm:w-12 sm:h-12"
-                      onUpload={(file) => handleUploadPlayerPhoto(player.id, file)}
-                      hint={`Upload ${player.name}'s photo`}
-                    />
-
-                    <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider truncate w-full text-center mt-1.5">
-                      {player.name}
-                    </div>
-
-                    <div className="mt-1 bg-[#FAF8F3] text-[#1A2B3C] border border-[#1A2B3C] px-2 py-0.2 font-display text-sm sm:text-base leading-tight">
-                      {player.hcp}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </header>
-
-          {/* =================================================================
-              4 SWISS GRID NAVIGATION TABS
-          ================================================================== */}
-          <nav className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6" aria-label="Primary Navigation">
-            {[
-              { id: "standings", label: "1. STANDINGS" },
-              { id: "fixtures", label: "2. FIXTURES" },
-              { id: "scorecard", label: editingId ? "3. EDIT MATCH" : "3. SCORECARD" },
-              { id: "records", label: "4. RECORDS & HOF" }
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`swiss-btn py-2.5 px-2.5 font-bold text-xs sm:text-sm uppercase tracking-wider text-center cursor-pointer ${
-                    isActive
-                      ? "bg-[#1A2B3C] text-[#FAF8F3]"
-                      : "bg-[#FAF8F3] text-[#1A2B3C] hover:bg-[#EAE5D9]"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* =================================================================
-              TAB 1: LIVE STANDINGS & RECENT RESULTS
-          ================================================================== */}
-          {activeTab === "standings" && (
-            <div className="space-y-8">
-              <section className="swiss-box p-4 sm:p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#1A2B3C] pb-3 mb-4">
-                  <div>
-                    <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
-                      SEASON 3 STANDINGS
-                    </h3>
-                    <p className="text-xs text-[#4A6B82] font-semibold uppercase tracking-wider">
-                      WIN = 2 PTS • STRICTLY UNDER NET PAR = +1 PT • POINTS = FINAL STROKES
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setEditingId(null);
-                      setActiveTab("scorecard");
-                    }}
-                    className="swiss-btn bg-[#C85A32] text-[#FAF8F3] text-xs font-bold uppercase px-3 py-2 cursor-pointer"
-                  >
-                    + LOG SCORE
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-[#1A2B3C] text-[#FAF8F3] text-[10px] sm:text-[11px] font-mono-swiss uppercase">
-                        <th className="py-2.5 px-2">RNK</th>
-                        <th className="py-2.5 px-2">GOLFER</th>
-                        <th className="py-2.5 px-1.5 text-center">HCP</th>
-                        <th className="py-2.5 px-1.5 text-center">W-L-T</th>
-                        <th className="py-2.5 px-2 text-center bg-[#D49B35] text-[#1A2B3C]">PTS</th>
-                        <th className="py-2.5 px-2 text-center">FINALE</th>
-                        <th className="py-2.5 px-2 text-right">FORM</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y-2 divide-[#1A2B3C]/20 text-sm">
-                      {standings.map((row, idx) => (
-                        <tr
-                          key={row.id}
-                          className={idx === 0 && row.pts > 0 ? "bg-[#D49B35]/15 font-semibold" : "hover:bg-[#1A2B3C]/5"}
-                        >
-                          <td className="py-3 px-2 font-display text-base">
-                            {idx + 1}
-                          </td>
-                          <td className="py-3 px-2">
-                            <div className="flex items-center gap-2">
-                              <PhotoDropAvatar
-                                photoUrl={playerPhotos[row.id]}
-                                fallbackText={row.name.slice(0, 2).toUpperCase()}
-                                bgColor={row.color}
-                                textColor={row.textColor}
-                                sizeClass="w-8 h-8"
-                                onUpload={(file) => handleUploadPlayerPhoto(row.id, file)}
-                                hint={`Upload ${row.name}'s photo`}
-                              />
-                              <div>
-                                <div className="font-bold text-[#1A2B3C] uppercase leading-none">
-                                  {row.name}
-                                </div>
-                                <div className="text-[10px] font-mono-swiss text-[#4A6B82] mt-0.5">
-                                  {row.played} PLY
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-1.5 text-center font-mono-swiss font-bold">
-                            {row.hcp}
-                          </td>
-                          <td className="py-3 px-1.5 text-center font-mono-swiss text-xs">
-                            {row.wins}-{row.losses}-{row.ties}
-                          </td>
-                          <td className="py-3 px-2 text-center font-display text-lg bg-[#D49B35]/20">
-                            {row.pts}
-                          </td>
-                          <td className="py-3 px-2 text-center font-mono-swiss font-bold text-xs text-[#2E5A44]">
-                            {row.pts > 0 ? `-${row.pts}` : "0"}
-                          </td>
-                          <td className="py-3 px-2 text-right">
-                            {row.form.length === 0 ? (
-                              <span className="text-[11px] font-mono-swiss text-[#4A6B82]">—</span>
-                            ) : (
-                              <div className="inline-flex gap-1">
-                                {row.form.slice(-4).map((f, i) => (
-                                  <span
-                                    key={i}
-                                    className={`inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border border-[#1A2B3C] ${
-                                      f === "W"
-                                        ? "bg-[#2E5A44] text-[#FAF8F3]"
-                                        : f === "L"
-                                        ? "bg-[#C85A32] text-[#FAF8F3]"
-                                        : "bg-[#D49B35] text-[#1A2B3C]"
-                                    }`}
-                                  >
-                                    {f}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              {/* RECENT SEASON 3 RESULTS (WITH IN-APP EDIT & DELETE) */}
-              <section className="swiss-box p-4 sm:p-5">
-                <div className="flex items-center justify-between border-b-2 border-[#1A2B3C] pb-3 mb-4">
-                  <div>
-                    <h3 className="font-display text-xl uppercase text-[#1A2B3C]">
-                      MATCH LOG ({matches.length})
-                    </h3>
-                    <p className="text-xs text-[#4A6B82] font-semibold uppercase">
-                      EDIT OR DELETE ANY SCORECARD IN-APP TO FIX MISTAKES
-                    </p>
-                  </div>
-                </div>
-
-                {matches.length === 0 ? (
-                  <div className="text-center py-8 border-2 border-dashed border-[#1A2B3C]/40 bg-[#F5F2EB]">
-                    <p className="font-bold text-sm uppercase text-[#1A2B3C]">
-                      NO SEASON 3 MATCHES LOGGED YET
-                    </p>
-                    <p className="text-xs text-[#4A6B82] mt-1">
-                      Open the <strong>Fixtures</strong> tab or hit <strong>+ LOG SCORE</strong> to record Week 1!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {[...matches].reverse().map((m) => {
-                      if (!m.playerB) return null;
-                      const out = calculateMatchOutcome(m);
-                      return (
-                        <div key={m.id} className="swiss-box-sm p-3.5 bg-[#F5F2EB]">
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1A2B3C]/20 pb-2 mb-2.5">
-                            <div className="flex items-center gap-2">
-                              <span className="bg-[#1A2B3C] text-[#FAF8F3] text-[10px] font-mono-swiss font-bold px-2 py-0.5 uppercase">
-                                {m.week || "MATCH"}
-                              </span>
-                              <span className="font-bold text-xs uppercase text-[#2E5A44]">
-                                {m.courseName} (PAR {m.par || 72})
-                              </span>
-                            </div>
-
-                            {/* In-App Edit & Delete Controls */}
-                            <div className="flex items-center gap-1.5">
-                              {confirmDeleteId === m.id ? (
-                                <>
-                                  <span className="text-[11px] font-bold text-[#C85A32] uppercase mr-1">
-                                    DELETE?
-                                  </span>
-                                  <button
-                                    onClick={() => handleDeleteMatch(m.id)}
-                                    className="bg-[#C85A32] text-[#FAF8F3] text-[11px] font-bold px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
-                                  >
-                                    YES
-                                  </button>
-                                  <button
-                                    onClick={() => setConfirmDeleteId(null)}
-                                    className="bg-[#FAF8F3] text-[#1A2B3C] text-[11px] font-bold px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
-                                  >
-                                    NO
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    onClick={() => handleEditMatch(m)}
-                                    className="bg-[#FAF8F3] hover:bg-[#D49B35] text-[#1A2B3C] text-[11px] font-bold uppercase px-2.5 py-0.5 border border-[#1A2B3C] cursor-pointer"
-                                  >
-                                    EDIT
-                                  </button>
-                                  <button
-                                    onClick={() => setConfirmDeleteId(m.id)}
-                                    className="bg-[#FAF8F3] hover:bg-[#C85A32] hover:text-[#FAF8F3] text-[#1A2B3C] text-[11px] font-bold uppercase px-2 py-0.5 border border-[#1A2B3C] cursor-pointer"
-                                  >
-                                    DEL
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                            {/* Player A */}
-                            <div
-                              className={`p-2 border border-[#1A2B3C] flex items-center justify-between ${
-                                out.resultA === "W" ? "bg-[#2E5A44]/15" : "bg-[#FAF8F3]"
-                              }`}
-                            >
-                              <div>
-                                <div className="font-bold uppercase flex items-center gap-1.5">
-                                  <span>{m.playerA}</span>
-                                  {out.resultA === "W" && (
-                                    <span className="text-[10px] bg-[#2E5A44] text-[#FAF8F3] px-1.5 py-0.2">
-                                      WIN
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-[11px] font-mono-swiss text-[#4A6B82]">
-                                  Gross {m.grossA} − HCP {m.hcpA} = <strong>Net {out.netA}</strong>
-                                  {out.beatHcpA && " (Under Par!)"}
-                                </div>
-                              </div>
-                              <div className="font-display text-base text-[#1A2B3C]">
-                                +{out.ptsA} <span className="text-[10px] font-mono-swiss">PTS</span>
-                              </div>
-                            </div>
-
-                            {/* Player B */}
-                            <div
-                              className={`p-2 border border-[#1A2B3C] flex items-center justify-between ${
-                                out.resultB === "W" ? "bg-[#2E5A44]/15" : "bg-[#FAF8F3]"
-                              }`}
-                            >
-                              <div>
-                                <div className="font-bold uppercase flex items-center gap-1.5">
-                                  <span>{m.playerB}</span>
-                                  {out.resultB === "W" && (
-                                    <span className="text-[10px] bg-[#2E5A32] bg-[#2E5A44] text-[#FAF8F3] px-1.5 py-0.2">
-                                      WIN
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-[11px] font-mono-swiss text-[#4A6B82]">
-                                  Gross {m.grossB} − HCP {m.hcpB} = <strong>Net {out.netB}</strong>
-                                  {out.beatHcpB && " (Under Par!)"}
-                                </div>
-                              </div>
-                              <div className="font-display text-base text-[#1A2B3C]">
-                                +{out.ptsB} <span className="text-[10px] font-mono-swiss">PTS</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </section>
-            </div>
-          )}
-
-          {/* =================================================================
-              TAB 2: DEDICATED FIXTURES TAB (POSTER UPLOAD + INTERACTIVE SCHEDULE)
-          ================================================================== */}
-          {activeTab === "fixtures" && (
-            <div className="space-y-6">
-              {/* Official Season 3 Poster Drag-and-Drop Showcase */}
-              <section className="swiss-box p-4 sm:p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#1A2B3C] pb-3 mb-4">
-                  <div>
-                    <h3 className="font-display text-lg sm:text-xl uppercase text-[#1A2B3C]">
-                      OFFICIAL FIXTURE POSTER
-                    </h3>
-                    <p className="text-xs text-[#4A6B82] font-semibold uppercase">
-                      DRAG &amp; DROP YOUR SEASON 3 POSTER IMAGE TO SHARE WITH THE GROUP
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => posterInputRef.current && posterInputRef.current.click()}
-                      className="swiss-btn bg-[#D49B35] text-[#1A2B3C] text-xs font-bold uppercase px-3 py-1.5 cursor-pointer"
-                    >
-                      {posterImage ? "REPLACE POSTER" : "UPLOAD POSTER"}
-                    </button>
-                    {posterImage && (
-                      <button
-                        onClick={handleClearPoster}
-                        className="bg-[#FAF8F3] text-[#C85A32] text-xs font-bold uppercase px-2.5 py-1.5 border-2 border-[#1A2B3C] cursor-pointer"
-                      >
-                        REMOVE
-                      </button>
-                    )}
-                  </div>
-                  <input
-                    ref={posterInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        handleUploadPoster(e.target.files[0]);
-                        e.target.value = "";
-                      }
-                    }}
-                  />
-                </div>
-
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setPosterDragging(true);
-                  }}
-                  onDragLeave={(e) => {
-                    e.preventDefault();
-                    setPosterDragging(false);
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setPosterDragging(false);
-                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                      handleUploadPoster(e.dataTransfer.files[0]);
-                    }
-                  }}
-                  className={`border-2 border-dashed transition-colors ${
-                    posterDragging
-                      ? "border-[#C85A32] bg-[#D49B35]/20"
-                      : "border-[#1A2B3C]/50 bg-[#F5F2EB]"
-                  }`}
-                >
-                  {posterImage ? (
-                    <div className="p-3 text-center">
-                      <img
-                        src={posterImage}
-                        alt="Season 3 Official Fixture Poster"
-                        onClick={() => setPosterZoomed(true)}
-                        className="max-h-[460px] w-auto mx-auto border-2 border-[#1A2B3C] shadow-[4px_4px_0px_#1A2B3C] cursor-zoom-in"
-                      />
-                      <div className="text-[11px] font-mono-swiss uppercase text-[#4A6B82] mt-2">
-                        TAP POSTER TO ENLARGE • DRAG A NEW IMAGE ANYWHERE HERE TO REPLACE
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => posterInputRef.current && posterInputRef.current.click()}
-                      className="py-10 px-4 text-center cursor-pointer"
-                    >
-                      <div className="inline-block bg-[#1A2B3C] text-[#FAF8F3] font-display text-xs uppercase px-3 py-1 mb-2">
-                        DROP POSTER IMAGE HERE
-                      </div>
-                      <p className="font-bold text-sm uppercase text-[#1A2B3C]">
-                        Drag &amp; drop your Season 3 Olympic poster (or tap to browse)
-                      </p>
-                      <p className="text-xs text-[#4A6B82] mt-1">
-                        Automatically synced via Firebase so everyone can view it on their phone
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </section>
-
-              {/* Interactive Weekly Fixture Schedule */}
-              <section className="swiss-box overflow-hidden">
-                <div className="bg-[#1A2B3C] text-[#FAF8F3] px-4 py-3 flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <h3 className="font-display text-lg sm:text-xl uppercase tracking-wide">
-                      SEASON 3 — THE FIXTURES
-                    </h3>
-                    <span className="text-[11px] font-mono-swiss text-[#D49B35]">
-                      TAP ANY MATCHUP TO LOG SCORE • EDIT WEEKS IN-APP
-                    </span>
-                  </div>
-                  <button
-                    onClick={() =>
-                      setEditingFixture({
-                        id: "week-" + Date.now(),
-                        order: fixtures.length + 1,
-                        week: `WEEK ${fixtures.filter((f) => !f.isFinal).length + 1}`,
-                        dates: "TBD",
-                        course: "NEW COURSE",
-                        par: 72,
-                        location: "Bravo World Tour",
-                        badgeColor: "#2E5A44",
-                        pictogram: "wolfcreek",
-                        isFinal: false,
-                        matchups: [
-                          { p1: "Easty", p2: "Bill" },
-                          { p1: "Dunk", p2: "Thorgan" },
-                          { p1: "Chinlie", p2: "Dew" }
-                        ]
-                      })
-                    }
-                    className="bg-[#D49B35] text-[#1A2B3C] font-bold text-xs uppercase px-3 py-1.5 border border-[#FAF8F3] cursor-pointer"
-                  >
-                    + ADD WEEK
-                  </button>
-                </div>
-
-                <div className="divide-y-2 divide-[#1A2B3C]">
-                  {fixtures
-                    .filter((w) => !w.isFinal)
-                    .map((wk) => (
-                      <div
-                        key={wk.id}
-                        className="p-3.5 sm:p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-[#FAF8F3]"
-                      >
-                        {/* Week Pill + Edit trigger */}
-                        <div className="md:col-span-3 flex md:flex-col items-center justify-between gap-2">
-                          <div
-                            className="w-full rounded-lg border-2 border-[#1A2B3C] py-2 px-2 text-center text-[#FAF8F3] shadow-[2px_2px_0px_#1A2B3C]"
-                            style={{ backgroundColor: wk.badgeColor || "#C85A32" }}
-                          >
-                            <div className="font-display text-base leading-none">{wk.week}</div>
-                            <div className="font-mono-swiss text-[10px] mt-1 tracking-tight">
-                              {wk.dates}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => setEditingFixture({ ...wk })}
-                            className="text-[10px] font-mono-swiss font-bold uppercase underline text-[#4A6B82] hover:text-[#1A2B3C] cursor-pointer shrink-0"
-                          >
-                            EDIT WEEK
-                          </button>
-                        </div>
-
-                        {/* Course Name + Custom Geometric Pictogram */}
-                        <div className="md:col-span-5 flex items-center justify-between md:border-r-2 md:border-[#1A2B3C]/25 md:pr-3">
-                          <div>
-                            <div className="font-display text-lg text-[#2E5A44] leading-tight">
-                              {wk.course}
-                            </div>
-                            <div className="text-[11px] font-mono-swiss text-[#4A6B82]">
-                              PAR {wk.par} • {(wk.location || "Bravo").split("(")[0].trim()}
-                            </div>
-                          </div>
-                          <CoursePictogram type={wk.pictogram} />
-                        </div>
-
-                        {/* Head-to-Head Matchups */}
-                        <div className="md:col-span-4 space-y-1.5">
-                          {(wk.matchups || []).map((pair, idx) => {
-                            const p1 = Array.isArray(pair) ? pair[0] : pair.p1;
-                            const p2 = Array.isArray(pair) ? pair[1] : pair.p2;
-                            const playedMatch = isFixturePlayed(wk.week, p1, p2);
-                            return (
-                              <button
-                                key={idx}
-                                onClick={() =>
-                                  playedMatch
-                                    ? handleEditMatch(playedMatch)
-                                    : handleSelectFixture(wk, p1, p2)
-                                }
-                                className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-bold border border-[#1A2B3C] transition-colors cursor-pointer ${
-                                  playedMatch
-                                    ? "bg-[#2E5A44] text-[#FAF8F3]"
-                                    : "bg-[#F5F2EB] hover:bg-[#D49B35] text-[#1A2B3C]"
-                                }`}
-                              >
-                                <span className="w-16 text-left">{p1}</span>
-                                <span className="font-mono-swiss text-[10px] opacity-80">
-                                  {playedMatch ? "✓ DONE" : "vs"}
-                                </span>
-                                <span className="w-16 text-right">{p2}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-
-                {/* Championship Final Banner */}
-                {fixtures
-                  .filter((w) => w.isFinal)
-                  .map((fin) => (
-                    <div
-                      key={fin.id}
-                      className="border-t-4 border-[#1A2B3C] bg-[#F5F2EB] p-4 text-center relative"
-                    >
-                      <button
-                        onClick={() => setEditingFixture({ ...fin })}
-                        className="absolute top-2 right-3 text-[10px] font-mono-swiss font-bold uppercase underline text-[#4A6B82] hover:text-[#1A2B3C] cursor-pointer"
-                      >
-                        EDIT FINAL
-                      </button>
-                      <div className="inline-block bg-[#1A2B3C] text-[#FAF8F3] font-display text-sm sm:text-base uppercase tracking-widest px-6 py-1.5 mb-2">
-                        THE CHAMPIONSHIP FINAL
-                      </div>
-                      <div className="font-display text-2xl sm:text-4xl text-[#C85A32] uppercase tracking-tight">
-                        {fin.dates}
-                      </div>
-                      <div className="font-bold text-xs font-mono-swiss uppercase text-[#1A2B3C] mt-1 mb-2">
-                        VENUE: {fin.course} (PAR {fin.par}) • SEEDED BY LEAGUE POINTS
-                      </div>
-                      <CoursePictogram type="pinecoast" />
-                    </div>
-                  ))}
-              </section>
-            </div>
-          )}
-
-          {/* =================================================================
-              TAB 3: HEAD-TO-HEAD SCORECARD ENTRY (NO SOLO ROUNDS)
-          ================================================================== */}
-          {activeTab === "scorecard" && (
-            <section className="swiss-box p-4 sm:p-6">
-              <div className="flex items-center justify-between border-b-2 border-[#1A2B3C] pb-3 mb-5">
-                <div>
-                  <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
-                    {editingId ? "EDIT MATCH SCORECARD" : "OFFICIAL SCORECARD"}
-                  </h3>
-                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
-                    HEAD-TO-HEAD MATCH PLAY • STRICTLY UNDER NET PAR = +1 BONUS PT
-                  </p>
-                </div>
-                {editingId && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingId(null);
-                      setGrossA("");
-                      setGrossB("");
-                      setTiebreaker("NONE");
-                    }}
-                    className="swiss-btn bg-[#FAF8F3] text-xs font-bold uppercase px-3 py-1.5 cursor-pointer"
-                  >
-                    CANCEL EDIT
-                  </button>
-                )}
-              </div>
-
-              <form onSubmit={handleSubmitMatch} className="space-y-5">
-                {/* Week & Course Selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#F5F2EB] p-3.5 border-2 border-[#1A2B3C]">
-                  <div className="sm:col-span-4">
-                    <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                      SCHEDULE WEEK
-                    </label>
-                    <select
-                      value={selectedWeek}
-                      onChange={(e) => handleWeekSelectChange(e.target.value)}
-                      className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm"
-                    >
-                      {fixtures.map((s) => (
-                        <option key={s.id} value={s.week}>
-                          {s.week} — {s.course}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="sm:col-span-5">
-                    <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                      BRAVO COURSE NAME
-                    </label>
-                    <input
-                      type="text"
-                      value={courseName}
-                      onChange={(e) => setCourseName(e.target.value)}
-                      required
-                      className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm uppercase"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-3">
-                    <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                      COURSE PAR
-                    </label>
-                    <input
-                      type="number"
-                      min="54"
-                      max="76"
-                      value={coursePar}
-                      onChange={(e) => setCoursePar(e.target.value)}
-                      required
-                      className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Player A & Player B Cards (Strictly H2H) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Player A */}
-                  <div className="border-2 border-[#1A2B3C] bg-[#FAF8F3] p-4 shadow-[3px_3px_0px_#2E5A44]">
-                    <div className="text-xs font-display uppercase text-[#2E5A44] mb-3">
-                      PLAYER A
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                          GOLFER
-                        </label>
-                        <select
-                          value={playerA}
-                          onChange={(e) => handlePlayerAChange(e.target.value)}
-                          className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm"
-                        >
-                          {ROSTER.map((r) => (
-                            <option key={r.id} value={r.id}>
-                              {r.name} (HCP {r.hcp})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2.5">
-                        <div>
-                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                            HCP
-                          </label>
-                          <input
-                            type="number"
-                            step="1"
-                            value={hcpA}
-                            onChange={(e) => setHcpA(e.target.value)}
-                            required
-                            className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                            GROSS SCORE
-                          </label>
-                          <input
-                            type="number"
-                            min="45"
-                            max="150"
-                            placeholder="e.g. 78"
-                            value={grossA}
-                            onChange={(e) => setGrossA(e.target.value)}
-                            required
-                            className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base focus:bg-[#D49B35]/20 outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Player B */}
-                  <div className="border-2 border-[#1A2B3C] bg-[#FAF8F3] p-4 shadow-[3px_3px_0px_#C85A32]">
-                    <div className="text-xs font-display uppercase text-[#C85A32] mb-3">
-                      PLAYER B
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                          OPPONENT
-                        </label>
-                        <select
-                          value={playerB}
-                          onChange={(e) => handlePlayerBChange(e.target.value)}
-                          className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-sm"
-                        >
-                          {ROSTER.filter((r) => r.id !== playerA).map((r) => (
-                            <option key={r.id} value={r.id}>
-                              {r.name} (HCP {r.hcp})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2.5">
-                        <div>
-                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                            HCP
-                          </label>
-                          <input
-                            type="number"
-                            step="1"
-                            value={hcpB}
-                            onChange={(e) => setHcpB(e.target.value)}
-                            required
-                            className="w-full bg-[#F5F2EB] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                            GROSS SCORE
-                          </label>
-                          <input
-                            type="number"
-                            min="45"
-                            max="150"
-                            placeholder="e.g. 76"
-                            value={grossB}
-                            onChange={(e) => setGrossB(e.target.value)}
-                            required
-                            className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-mono-swiss font-bold text-base focus:bg-[#D49B35]/20 outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tiebreaker Selector */}
-                <div className="bg-[#F5F2EB] p-3 border-2 border-[#1A2B3C]">
-                  <label className="block text-[11px] font-mono-swiss font-bold uppercase mb-1">
-                    TIEBREAKER (IF NET SCORES ARE LEVEL)
-                  </label>
-                  <select
-                    value={tiebreaker}
-                    onChange={(e) => setTiebreaker(e.target.value)}
-                    className="w-full bg-[#FAF8F3] border-2 border-[#1A2B3C] px-3 py-2 font-bold text-xs uppercase"
-                  >
-                    <option value="NONE">NO TIE / SPLIT POINTS IF LEVEL (1 PT EACH)</option>
-                    <option value="A">{playerA.toUpperCase()} WINS SUDDEN-DEATH TIEBREAKER (+2 PTS)</option>
-                    <option value="B">{playerB.toUpperCase()} WINS SUDDEN-DEATH TIEBREAKER (+2 PTS)</option>
-                  </select>
-                </div>
-
-                {/* Live Calculation Preview Box */}
-                {livePreview && (
-                  <div className="bg-[#1A2B3C] text-[#FAF8F3] p-4 border-2 border-[#1A2B3C]">
-                    <div className="text-[10px] font-mono-swiss uppercase text-[#D49B35] mb-2">
-                      LIVE POINTS PREVIEW (PAR {coursePar})
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                      <div className="flex items-center justify-between border border-[#FAF8F3]/25 px-3 py-2">
-                        <div>
-                          <span className="font-bold uppercase">{playerA}</span>
-                          <div className="text-xs font-mono-swiss text-[#8DA18E]">
-                            Net {livePreview.netA}{" "}
-                            {livePreview.beatHcpA ? "(Under Par +1)" : "(Even/Over Par)"}
-                          </div>
-                        </div>
-                        <span className="font-display text-xl text-[#D49B35]">
-                          +{livePreview.ptsA} PTS
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between border border-[#FAF8F3]/25 px-3 py-2">
-                        <div>
-                          <span className="font-bold uppercase">{playerB}</span>
-                          <div className="text-xs font-mono-swiss text-[#8DA18E]">
-                            Net {livePreview.netB}{" "}
-                            {livePreview.beatHcpB ? "(Under Par +1)" : "(Even/Over Par)"}
-                          </div>
-                        </div>
-                        <span className="font-display text-xl text-[#D49B35]">
-                          +{livePreview.ptsB} PTS
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="swiss-btn w-full bg-[#2E5A44] hover:bg-[#234635] text-[#FAF8F3] font-display text-lg uppercase py-3.5 tracking-wider cursor-pointer disabled:opacity-50"
-                >
-                  {submitting
-                    ? "SAVING TO FIREBASE..."
-                    : editingId
-                    ? "UPDATE MATCH RESULT"
-                    : "SUBMIT OFFICIAL SCORECARD"}
-                </button>
-              </form>
-            </section>
-          )}
-
-          {/* =================================================================
-              TAB 4: HALL OF FAME, ALL-TIME RECORDS & OFFICIAL RULES
-          ================================================================== */}
-          {activeTab === "records" && (
-            <div className="space-y-6">
-              {/* Yellow Jacket Hall of Fame with Photo Upload Slots */}
-              <section className="swiss-box p-4 sm:p-5">
-                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
-                  <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
-                    YELLOW JACKET HALL OF FAME
-                  </h3>
-                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
-                    DRAG &amp; DROP CHAMPION JACKET PHOTOS ONTO EACH PORTRAIT
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {HALL_OF_FAME_ENTRIES.map((champ) => (
-                    <div
-                      key={champ.id}
-                      className="border-2 border-[#1A2B3C] bg-[#F5F2EB] p-4 shadow-[3px_3px_0px_#D49B35] flex flex-col items-center text-center"
-                    >
-                      <div className="inline-block bg-[#D49B35] text-[#1A2B3C] font-mono-swiss font-bold text-[10px] px-2 py-0.5 border border-[#1A2B3C] mb-3">
-                        {champ.season}
-                      </div>
-
-                      <PhotoDropAvatar
-                        photoUrl={hofPhotos[champ.id]}
-                        fallbackText={champ.champion.slice(0, 2)}
-                        bgColor={champ.badgeColor}
-                        textColor="#FAF8F3"
-                        sizeClass="w-20 h-20"
-                        onUpload={(file) => handleUploadHofPhoto(champ.id, file)}
-                        hint={`Upload ${champ.champion} Yellow Jacket photo`}
-                      />
-
-                      <div className="font-display text-2xl text-[#1A2B3C] uppercase mt-2.5">
-                        {champ.champion}
-                      </div>
-                      <div className="text-[11px] font-bold uppercase text-[#2E5A44] mt-0.5">
-                        {champ.subtitle}
-                      </div>
-                      <p className="text-xs text-[#1A2B3C]/80 mt-2 leading-relaxed">
-                        {champ.notes}
-                      </p>
-                    </div>
-                  ))}
-
-                  {/* Season 3 Contender Slot */}
-                  <div className="border-2 border-dashed border-[#1A2B3C] bg-[#FAF8F3] p-4 flex flex-col items-center justify-center text-center">
-                    <div className="inline-block bg-[#1A2B3C] text-[#FAF8F3] font-mono-swiss font-bold text-[10px] px-2 py-0.5 mb-3">
-                      SEASON 3 (2027)
-                    </div>
-                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#1A2B3C] flex items-center justify-center font-display text-2xl text-[#4A6B82]">
-                      ?
-                    </div>
-                    <div className="font-display text-xl text-[#C85A32] uppercase mt-2.5">
-                      TO BE DECIDED
-                    </div>
-                    <div className="text-[11px] font-mono-swiss uppercase text-[#4A6B82] mt-1">
-                      JAN 23 • PINE COAST
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* All-Time League Records */}
-              <section className="swiss-box p-4 sm:p-5">
-                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
-                  <h3 className="font-display text-xl sm:text-2xl uppercase text-[#1A2B3C]">
-                    ALL-TIME LEAGUE RECORDS
-                  </h3>
-                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
-                    SEASONS 1–3 COMBINED • AUTOMATICALLY UPDATES WHEN BROKEN
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {dynamicRecords.map((rec, idx) => (
-                    <div
-                      key={idx}
-                      className="border-2 border-[#1A2B3C] bg-[#F5F2EB] p-3.5 flex flex-col justify-between"
-                      style={{ borderLeftWidth: "8px", borderLeftColor: rec.accent }}
-                    >
-                      <div className="text-[10px] font-mono-swiss font-bold uppercase text-[#4A6B82]">
-                        {rec.title}
-                      </div>
-                      <div className="font-display text-2xl text-[#1A2B3C] my-1">
-                        {rec.value}
-                      </div>
-                      <div className="text-xs font-bold uppercase text-[#1A2B3C]">
-                        {rec.holder}{" "}
-                        <span className="font-normal text-[#4A6B82]">• {rec.detail}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* World Tour Course Records */}
-              <section className="swiss-box p-4 sm:p-5">
-                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
-                  <h3 className="font-display text-xl uppercase text-[#1A2B3C]">
-                    WORLD TOUR COURSE RECORDS
-                  </h3>
-                  <p className="text-xs text-[#4A6B82] font-semibold uppercase">
-                    HISTORICAL LOW NET &amp; PURIST (GROSS) BENCHMARKS
-                  </p>
-                </div>
-
-                <div className="divide-y-2 divide-[#1A2B3C]/20">
-                  {LEGACY_COURSE_RECORDS.map((c, i) => (
-                    <div key={i} className="py-3 flex flex-wrap items-center justify-between gap-2">
-                      <div className="font-bold text-sm uppercase text-[#2E5A44]">
-                        {c.course}
-                      </div>
-                      <div className="flex gap-4 text-xs font-mono-swiss">
-                        <span>
-                          LOW NET: <strong>{c.lowNet}</strong> ({c.lowNetHolder})
-                        </span>
-                        <span>
-                          PURIST: <strong>{c.purist}</strong> ({c.puristHolder})
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* Official Season 3 Rules */}
-              <section className="swiss-box p-4 sm:p-5">
-                <div className="border-b-2 border-[#1A2B3C] pb-3 mb-4">
-                  <h3 className="font-display text-xl uppercase text-[#1A2B3C]">
-                    OFFICIAL RULES &amp; REGULATIONS
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                  <div className="border-2 border-[#1A2B3C] p-3.5 bg-[#FAF8F3]">
-                    <div className="font-display text-sm uppercase text-[#C85A32] mb-1.5">
-                      1. REGULAR SEASON SCORING
-                    </div>
-                    <ul className="space-y-1.5 text-xs leading-relaxed">
-                      <li>• <strong>Match Win:</strong> 2 Points (Head-to-Head only)</li>
-                      <li>• <strong>Handicap Bonus:</strong> +1 Point for shooting <em>strictly under</em> net par (Net &lt; Course Par)</li>
-                      <li>• <strong>Ties:</strong> Sudden-death playoff hole if played; otherwise 1 Point each</li>
-                    </ul>
-                  </div>
-
-                  <div className="border-2 border-[#1A2B3C] p-3.5 bg-[#FAF8F3]">
-                    <div className="font-display text-sm uppercase text-[#2E5A44] mb-1.5">
-                      2. GRAND FINALE (PINE COAST)
-                    </div>
-                    <ul className="space-y-1.5 text-xs leading-relaxed">
-                      <li>• <strong>Points to Strokes:</strong> Regular season points convert directly into minus strokes in the Final (e.g., 6 pts = −6 shots)</li>
-                      <li>• <strong>Champion:</strong> Lowest net score after handicap and point-bonus strokes wins the Yellow Jacket</li>
-                    </ul>
-                  </div>
-
-                  <div className="border-2 border-[#1A2B3C] p-3.5 bg-[#FAF8F3] sm:col-span-2">
-                    <div className="font-display text-sm uppercase text-[#4A6B82] mb-1.5">
-                      3. BRAVO SIMULATOR IN-GAME SETTINGS
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                      <div className="bg-[#F5F2EB] p-2 border border-[#1A2B3C]">
-                        <strong>GIMME CIRCLE:</strong> 1.5 Yards
-                      </div>
-                      <div className="bg-[#F5F2EB] p-2 border border-[#1A2B3C]">
-                        <strong>PUTTING:</strong> Auto-line only (no changing direction)
-                      </div>
-                      <div className="bg-[#F5F2EB] p-2 border border-[#1A2B3C]">
-                        <strong>MULLIGANS:</strong> 3 per round, tee shots only (max 1 per hole)
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<App />);
-  </script>
-</body>
-</html>
